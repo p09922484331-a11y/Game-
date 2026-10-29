@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1a1040">
+<title>کلمه‌یاب</title>
+<style>
+:root{--teal:#2ee6c5;--gold:#ffd166;--pink:#ff5d8f;--ink:#2b1763}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:Tahoma,'Vazirmatn',system-ui,sans-serif;color:#fff;background:radial-gradient(circle at 20% 10%,#4b2a9a 0,transparent 45%),radial-gradient(circle at 85% 90%,#0e7490 0,transparent 40%),linear-gradient(160deg,#1b1145,#2a1465 55%,#14304f);user-select:none;-webkit-user-select:none}
+button{font-family:inherit;color:inherit;border:0;cursor:pointer}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;padding:calc(env(safe-area-inset-top) + 10px) 14px calc(env(safe-area-inset-bottom) + 12px);z-index:2}
+.screen.active{display:flex}
+#bgl{position:fixed;inset:0;overflow:hidden;z-index:1;pointer-events:none}
+#bgl span{position:absolute;bottom:-60px;font-weight:800;color:rgba(255,255,255,.07);animation:rise linear infinite}
+@keyframes rise{to{transform:translateY(-120vh) rotate(40deg)}}
+/* home */
+#home{align-items:center;justify-content:safe center;text-align:center;gap:12px;overflow:auto}
+.logo{display:flex;gap:6px;direction:rtl;margin-bottom:6px}
+.logo b{width:58px;height:58px;border-radius:16px;background:linear-gradient(145deg,#fff,#e4dcff);color:var(--ink);font-size:34px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 0 #7c5cd6,0 14px 24px rgba(0,0,0,.35);animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.sub{opacity:.8;font-size:14px;margin-bottom:10px}
+.chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:8px 16px;font-weight:700;backdrop-filter:blur(6px);display:inline-flex;align-items:center;gap:8px}
+.big{width:min(280px,80vw);padding:18px;border-radius:22px;font-size:22px;font-weight:800;background:linear-gradient(180deg,#43f0cf,#12b8a0);box-shadow:0 7px 0 #0b7f70,0 14px 24px rgba(0,0,0,.35);color:#073b34;transition:transform .1s,box-shadow .1s}
+.big:active{transform:translateY(5px);box-shadow:0 2px 0 #0b7f70}
+.mid{width:min(280px,80vw);padding:14px;border-radius:18px;font-size:17px;font-weight:700;background:linear-gradient(180deg,#ffdf8a,#f5b73a);box-shadow:0 5px 0 #b57a0f;color:#5a3a00}
+.mid.alt{background:linear-gradient(180deg,#9a7cff,#6b49e0);box-shadow:0 5px 0 #43299c;color:#fff}
+.mid:active{transform:translateY(4px);box-shadow:0 1px 0 #0003}
+.dot{display:inline-block;background:var(--pink);color:#fff;border-radius:999px;padding:1px 8px;font-size:12px;margin-right:6px;animation:pulse 1s infinite}
+@keyframes pulse{50%{transform:scale(1.2)}}
+/* game */
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ib{width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.14);font-size:20px}
+.lv{font-weight:800;font-size:17px}
+.coins{background:rgba(0,0,0,.28);border-radius:999px;padding:7px 12px;font-weight:800;display:flex;gap:6px;align-items:center}
+.coins i{background:var(--teal);color:#073b34;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:15px}
+.prog{height:8px;border-radius:9px;background:rgba(255,255,255,.14);margin:10px 4px;overflow:hidden}
+#progbar{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width .4s;border-radius:9px}
+.words{flex:1;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:12px 16px;padding:6px;overflow:auto;--bx:34px}
+.w{display:flex;gap:4px}
+.bx{width:var(--bx);height:var(--bx);border-radius:9px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:calc(var(--bx)*.58);color:transparent}
+.bx.ok{background:linear-gradient(145deg,var(--teal),#14b8a6);color:#fff;border-color:transparent}
+.bx.hint{background:rgba(255,209,102,.9);color:#5a3a00;border-color:transparent}
+.w.pop .bx{animation:pop .45s both}
+@keyframes pop{0%{transform:scale(.3) rotate(-20deg)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+.preview{height:46px;display:flex;align-items:center;justify-content:center}
+.preview span{background:rgba(0,0,0,.35);padding:6px 22px;border-radius:999px;font-size:26px;font-weight:800;min-width:60px;text-align:center;opacity:0;transform:scale(.8);transition:.12s}
+.preview span.show{opacity:1;transform:scale(1)}
+.preview span.good{background:var(--teal);color:#073b34}
+.preview span.bad{background:var(--pink);animation:shake .35s}
+.preview span.info{background:var(--gold);color:#5a3a00}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.wheelwrap{display:flex;justify-content:center;padding:4px 0 8px}
+#wheel{position:relative;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.16),rgba(255,255,255,.06));border:2px solid rgba(255,255,255,.16);touch-action:none;box-shadow:inset 0 0 30px rgba(0,0,0,.25),0 10px 30px rgba(0,0,0,.3)}
+#lines{position:absolute;inset:0;pointer-events:none}
+.lt{position:absolute;border-radius:50%;background:linear-gradient(145deg,#fff,#e9e1ff);color:var(--ink);display:flex;align-items:center;justify-content:center;font-weight:800;box-shadow:0 4px 0 #a893ea,0 8px 14px rgba(0,0,0,.3);transition:transform .12s,background .12s;pointer-events:none;animation:in .4s both}
+@keyframes in{from{transform:scale(0)}}
+.lt.on{background:linear-gradient(145deg,var(--teal),#14b8a6);color:#fff;transform:scale(1.15);box-shadow:0 4px 0 #0b7f70}
+.tools{display:flex;justify-content:center;gap:12px;padding-top:4px}
+.tl{position:relative;width:78px;padding:10px 4px 8px;border-radius:18px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);font-size:22px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tl span{font-size:11px;opacity:.9}
+.tl em{position:absolute;top:-8px;left:-6px;background:var(--gold);color:#5a3a00;font-style:normal;font-size:11px;font-weight:800;border-radius:999px;padding:1px 7px}
+.tl:active{transform:scale(.94)}
+.grid2{width:min(300px,90vw);display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mid.sm{width:100%;font-size:14px;padding:12px 4px;position:relative}
+.mapgrid{flex:1;overflow:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-content:start;padding:14px 4px}
+.lvb{aspect-ratio:1;border-radius:18px;background:linear-gradient(180deg,#43f0cf,#12b8a0);box-shadow:0 5px 0 #0b7f70;color:#073b34;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:22px;gap:2px}
+.lvb b{font-size:20px}.lvb span{font-size:10px}
+.lvb.now{background:linear-gradient(180deg,#ffdf8a,#f5b73a);box-shadow:0 5px 0 #b57a0f;color:#5a3a00;animation:pulse 1.4s infinite}
+.lvb.lock{background:rgba(255,255,255,.12);box-shadow:none;color:#fff;opacity:.6}
+.spinner{font-size:80px;margin:14px 0}
+.spinner.go{animation:spin 1.6s cubic-bezier(.2,.8,.3,1)}
+@keyframes spin{to{transform:rotate(1080deg)}}
+.sw{width:34px;height:34px;border-radius:10px;border:2px solid #fff6;display:inline-block}
+.cityrow{text-align:center;font-size:13px;opacity:.9;margin-top:2px;min-height:18px}
+.bn{height:16px;text-align:center;font-size:12px;color:var(--gold)}
+.chip2{background:rgba(255,255,255,.16);border-radius:999px;padding:5px 12px;font-weight:700;font-size:16px}
+.timed .words{align-content:flex-start;gap:8px}
+.timed .tl.h{display:none}
+.chh{grid-column:1/-1;font-weight:800;font-size:15px;margin-top:8px;opacity:.95}
+.inp{width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:20px;text-align:center;margin:8px 0;font-family:inherit;direction:ltr;user-select:text;-webkit-user-select:text}
+/* modal */
+#modal{position:fixed;inset:0;background:rgba(5,2,20,.65);display:none;align-items:center;justify-content:center;z-index:10;padding:18px;backdrop-filter:blur(4px)}
+#modal.open{display:flex}
+#mbox{width:min(360px,100%);max-height:88vh;overflow:auto;background:linear-gradient(160deg,#3a1f8a,#25125f);border:1px solid rgba(255,255,255,.2);border-radius:26px;padding:22px 18px;text-align:center;animation:pop .35s both;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+#mbox h2{font-size:24px;margin-bottom:8px}
+#mbox p{opacity:.85;line-height:1.9;font-size:14px;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:rgba(255,255,255,.1);border-radius:16px;padding:12px 14px;margin:8px 0;text-align:right}
+.row b{font-size:16px}.row small{opacity:.75;display:block;font-size:12px}
+.buy{background:linear-gradient(180deg,#43f0cf,#12b8a0);color:#073b34;font-weight:800;border-radius:12px;padding:9px 14px;white-space:nowrap}
+.tag{background:var(--pink);font-size:11px;padding:2px 8px;border-radius:999px;margin-right:6px}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:12px 0}
+.day{border-radius:10px;background:rgba(255,255,255,.12);padding:8px 0;font-size:11px}
+.day b{display:block;font-size:14px;color:var(--gold)}
+.day.now{background:var(--gold);color:#5a3a00}.day.now b{color:#5a3a00}
+.day.past{opacity:.45}
+.close{margin-top:10px;background:transparent;color:#fff;opacity:.75;padding:8px;font-size:14px}
+.switch{width:52px;height:30px;border-radius:99px;background:#555;position:relative;transition:.2s}
+.switch::after{content:"";position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}
+.switch.on{background:var(--teal)}.switch.on::after{right:25px}
+.stars{font-size:38px;letter-spacing:6px;margin:6px 0}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(30px);background:#000c;padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;transition:.25s;z-index:20;pointer-events:none;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%)}
+#cf{position:fixed;inset:0;pointer-events:none;z-index:15}
+</style>
+</head>
+<body>
+<div id="bgl"></div>
+
+<section id="home" class="screen active">
+  <div class="logo" id="logo"></div>
+  <div class="sub">کلمه‌ها را از میان حرف‌ها پیدا کن!</div>
+  <div class="chip">🪙 <span id="coinsH"></span> &nbsp; ⭐ <span id="starsH"></span></div>
+  <button class="big" id="playBtn" onclick="play()"></button>
+  <div class="grid2">
+    <button class="mid sm" style="grid-column:span 2;background:linear-gradient(180deg,#ff8fb1,#ff5d8f);box-shadow:0 5px 0 #a42e55;color:#fff" onclick="openTimed()">⏱ چالش زمان‌دار با دوستان</button>
+    <button class="mid sm" onclick="openMap()">🗺️ مراحل</button>
+    <button class="mid sm" onclick="openMissions()">🎯 ماموریت‌ها<span class="dot" id="missDot" style="display:none">!</span></button>
+    <button class="mid sm" onclick="openDaily(true)">🎁 جایزه روزانه<span class="dot" id="dailyDot" style="display:none">!</span></button>
+    <button class="mid sm" onclick="openSpin()">🎡 چرخ شانس<span class="dot" id="spinDot" style="display:none">!</span></button>
+    <button class="mid sm alt" onclick="openShop()">🛒 فروشگاه سکه</button>
+    <button class="mid sm alt" onclick="openThemes()">🎨 پوسته‌ها</button>
+    <button class="mid sm alt" style="grid-column:span 2" onclick="openSettings()">⚙️ تنظیمات</button>
+  </div>
+</section>
+
+<section id="game" class="screen">
+  <div class="top">
+    <button class="ib" onclick="goHome()">🏠</button>
+    <div class="lv" id="lvbox">مرحله <span id="lvn"></span></div>
+    <div class="lv" id="tbox" style="display:none">⏱ <span id="tm">۶۰</span> · ⭐ <span id="sc">۰</span></div>
+    <div class="coins" onclick="openShop()">🪙 <b id="coinsG"></b><i>+</i></div>
+  </div>
+  <div class="cityrow" id="city"></div>
+  <div class="prog"><div id="progbar"></div></div>
+  <div class="bn" id="bn"></div>
+  <div class="words" id="words"></div>
+  <div class="preview"><span id="preview"></span></div>
+  <div class="wheelwrap">
+    <div id="wheel"><svg id="lines"><polyline id="pl" fill="none" stroke="rgba(46,230,197,.75)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  </div>
+  <div class="tools">
+    <button class="tl" onclick="shuffle()">🔀<span>بُر زدن</span></button>
+    <button class="tl h" onclick="hint()">💡<span>راهنما</span><em id="c1"></em></button>
+    <button class="tl h" onclick="revealWord()">🔍<span>کشف کلمه</span><em id="c2"></em></button>
+  </div>
+</section>
+
+<section id="map" class="screen">
+  <div class="top">
+    <button class="ib" onclick="goHome()">🏠</button>
+    <div class="lv">مراحل</div>
+    <div class="coins">⭐ <b id="starsM"></b></div>
+  </div>
+  <div class="mapgrid" id="mapgrid"></div>
+</section>
+
+<div id="modal"><div id="mbox"></div></div>
+<div id="toast"></div>
+<canvas id="cf"></canvas>
+
+<script>
+/* ============ تنظیمات قابل ویرایش ============ */
+// حالت آزمایشی خرید: تا وقتی پرداخت مایکت را وصل نکرده‌اید، true بماند تا بتوانید فروشگاه را تست کنید.
+// قبل از انتشار در مایکت حتماً false کنید و تابع buy() را به سرویس پرداخت مایکت وصل کنید.
+const TEST_MODE = true;
+const HINT_COST = 20, REVEAL_COST = 50;
+const DAILY = [5, 8, 10, 15, 20, 25, 50];
+const SPIN = [1,1,2,2,3,3,5,5,8,15];
+const MISSIONS = [
+  {k:'words',  goal:15, reward:6,  text:'۱۵ کلمه پیدا کن'},
+  {k:'levels', goal:2,  reward:8,  text:'۲ مرحله را تمام کن'},
+  {k:'clean',  goal:1,  reward:10, text:'یک مرحله را بدون راهنما تمام کن'}
+];
+const THEMES = [
+  {id:'d', name:'بنفش شبانه', price:0,   base:'#1a1040', bg:'radial-gradient(circle at 20% 10%,#4b2a9a 0,transparent 45%),radial-gradient(circle at 85% 90%,#0e7490 0,transparent 40%),linear-gradient(160deg,#1b1145,#2a1465 55%,#14304f)'},
+  {id:'s', name:'غروب',       price:80,  base:'#4a1033', bg:'radial-gradient(circle at 20% 10%,#c2410c 0,transparent 45%),radial-gradient(circle at 85% 90%,#be185d 0,transparent 40%),linear-gradient(160deg,#4a1033,#7c2d12 55%,#431407)'},
+  {id:'f', name:'جنگل',       price:120, base:'#052e16', bg:'radial-gradient(circle at 20% 10%,#15803d 0,transparent 45%),radial-gradient(circle at 85% 90%,#0f766e 0,transparent 40%),linear-gradient(160deg,#052e16,#14532d 55%,#064e3b)'},
+  {id:'o', name:'اقیانوس',    price:120, base:'#0c1a3a', bg:'radial-gradient(circle at 20% 10%,#0369a1 0,transparent 45%),radial-gradient(circle at 85% 90%,#1d4ed8 0,transparent 40%),linear-gradient(160deg,#0c1a3a,#0c4a6e 55%,#172554)'},
+  {id:'g', name:'طلایی سلطنتی', price:200, base:'#1c1917', bg:'radial-gradient(circle at 20% 10%,#a16207 0,transparent 45%),radial-gradient(circle at 85% 90%,#78350f 0,transparent 40%),linear-gradient(160deg,#1c1917,#44403c 55%,#292524)'}
+];
+const PACKS = [
+  {id:'p1', name:'پک شروع',      coins:100,  price:'۱۰ هزار تومان'},
+  {id:'p2', name:'پک نقره‌ای',   coins:300,  price:'۲۵ هزار تومان', tag:'محبوب'},
+  {id:'p3', name:'پک طلایی',     coins:800,  price:'۵۵ هزار تومان'},
+  {id:'p4', name:'پک افسانه‌ای', coins:2000, price:'۱۱۰ هزار تومان', tag:'بهترین ارزش'}
+];
+const LEVELS = [
+ {l:"کارت", w:["کار","کارت","تار","کت","تک"]},
+ {l:"ماهر", w:["ماه","مار","رام","ماهر","مهر","هم","هر"]},
+ {l:"دریا", w:["دریا","یار","دار","ردا","دیر","یاد","ریا"]},
+ {l:"باران", w:["باران","بار","نار","ران","ابر"]},
+ {l:"بهار", w:["بهار","بار","ابر","راه","هر"]},
+ {l:"دوست", w:["دوست","دست","سود","تو","دو","سو"]},
+ {l:"دلبر", w:["دلبر","دل","لب","بر","برد","درب"]},
+ {l:"شادمی", w:["شادی","شاد","یاد","دام","ماش","دم"]},
+ {l:"کتاب", w:["کتاب","تاب","تک","کت","باک"]},
+ {l:"گلزار", w:["گلزار","گل","زار","راز","ارز"]},
+ {l:"استاد", w:["استاد","ستاد","دست","ادا","اسد"]},
+ {l:"ایران", w:["ایران","یار","ران","نار","ریا","رای","نای"]},
+ {l:"فرزند", w:["فرزند","فرد","نفر","فن","زن","رند","درز"]},
+ {l:"پرنده", w:["پرنده","پرده","نرده","پند","دره","رند","پر"]},
+ {l:"زندگی", w:["زندگی","زند","زن","دین","دیگ","زین","گدی"]},
+ {l:"مدرسه", w:["مدرسه","درس","مرد","سرد","سد","دم","سر"]},
+ {l:"شکلات", w:["شکلات","شکل","تلاش","کاش","لاک","تاک"]},
+ {l:"انگشت", w:["انگشت","گشت","تنگ","شنا","تنش"]},
+ {l:"انتخاب", w:["انتخاب","باخت","بخت","تاب","ناب","نخ"]},
+ {l:"پرتقال", w:["پرتقال","پرت","پار","تار","تپ","پل","لپ"]},
+ {l:"صبحانه", w:["صبحانه","صبح","صحنه","صحن","نصب","ناب"]},
+ {l:"خانواده", w:["خانواده","خانه","خان","دانه","دانا","هوا","ندا","نخ"]},
+ {l:"زمستان", w:["زمستان","زمان","ستم","مست","ساز","ناز","نام","سمن"]},
+ {l:"نویسنده", w:["نویسنده","نوید","دیو","سین","نوه","دهن","سده"]},
+ {l:"کوهستان", w:["کوهستان","کوه","ستون","سکوت","هوس","ساکت","سوت","تاک"]},
+ {l:"پرواز", w:["پرواز","راز","زار","ارز","پر"]},
+ {l:"آسمان", w:["آسمان","سمن","نام","آن","ماس"]},
+ {l:"ستاره", w:["ستاره","راست","هست","تار","رسا","سه","ته"]},
+ {l:"مسافر", w:["مسافر","سفر","افسر","فرم","سرم","مار","رام","ماس"]},
+ {l:"مهربان", w:["مهربان","بهار","مهر","نهر","بام","ماه","نام","بار"]},
+ {l:"خوشحال", w:["خوشحال","خوش","حال","شال","خال","شاخ","لوح","شوخ"]},
+ {l:"دانشجو", w:["دانشجو","دانش","جوان","دوش","نوش","شاد","جان","جو"]},
+ {l:"تابستان", w:["تابستان","بستان","نسبت","نبات","بست","تاب","ناب"]}
+];
+
+/* ============ دیکشنری و شهرها ============ */
+const DICT = "آب آش آه آن آهو آدم آتش آبی آرام آخر آغاز آینه آزاد آسمان آموزش آشپز ابر اسب اسم اتو ادب ارز اسد ادا استاد ستاد اردک امید انگور انگشت ایران اتاق استخر ایمان انتخاب اندام امروز اینجا باد بار باغ بام بر برف بخت بیل بین بیم باران بهار بهشت بیمار بیابان بالش بلبل برنج بادام بادبادک برگ برادر بچه بزرگ بلند بنفش بوته بوی بوسه بازار بازی بازیگر باخت باک ببر بالا بانو بهتر بستان بست بیست بقا بدن بند برد بود بدر درب پا پر پل پی پوست پدر پرده پرنده پرواز پرتقال پرت پار پند پنج پنیر پیاز پیام پنجره پسر پاک پایان پاییز پارک پیراهن پروانه پشت پول پیر پله پتو پژواک پاس پشم پلو تا تب تپ تخت تار تاک تن تو تیر تیز تیغ ته تاب تنگ تنش تماشا تنها تهران تجربه تخم تخته تعطیل تمیز تند تولد تاریخ تاریک تازه تلفن تابلو تابستان تلاش تاج توپ توت تیم تکه ثروت ثانیه جا جو جان جام جاده جنگ جوان جهان جزیره جوراب جشن جمله جدول جیب جنگل جواب جوجه جمع جلو جوهر جدید جانور جارو جعبه جیر چای چاه چشم چتر چنگ چوب چهار چیز چراغ چمن چاقو چهره چکمه چشمه چاپ چرخ چین چپ چادر چکش چرم حال حق حس حیوان حیاط حرف حوض حلوا حساب حیف حمام حوله حوصله خار خال خان خاک خانه خط خم خنده خواب خوب خود خوش خیر خیال خیابان خورشید خروس خرگوش خرما خرید خاطره خیار خیمه خواهر خدمت خنک خبر خاله خسته خوراک خرس خزان خوشحال خانواده خوشه خالی خشک خاص خام خدا خوان شاخ دارو دانه دانا دانش دختر در درد درس درخت دست دشت دشمن دل دلیل دم دندان دنیا دو دوست دود دور دوش دوم ده دیر دیگ دیو دین دیوار دریا دفتر دکتر دوچرخه دهان دقیقه دوربین دلفین دیروز دعوت دانشگاه دستمال دانشجو دلبر داد دام دره دسته دیدار دوره درز دزد دایره دلتنگ دولت دکان دیدن را راز راست راه رنگ رود روز روش روشن رویا ریشه رای ریا رسا رخت رخ رد رز رگ رفت رقص روزنامه رستوران رفیق رسم ریاضی روباه رودخانه رادیو رمان رنج رسید رام ردا رند ران رها رشد رطوبت رویش رکورد زار زبان زخم زمان زمین زن زنگ زود زیبا زیر زندگی زنبور زرافه زیتون زرد زمستان زنجیر زیبایی زین زند زنده زهر زور زیاد زاغ زانو ساز ساعت سال ساده سایه سبز سبد سد سر سرد سرما سفر سفید سقف سگ سنگ سوار سوی سود سوم سیب سیر سین ستاره ستون ست سخت سخن سمن سماور سرخ سوت سه سبزی سفره سلام سوال سیاه سینما سرزمین سکوت سنجاق ساختمان سرباز سرگرمی سده سرم سوز ساکت سمت سرود سیم سیل سکه سخاوت سرعت سرنوشت سیاره سادگی شاد شاه شب شبنم شخص شرق شعر شکر شکل شلوغ شمع شنا شهر شیر شیشه شیرین شکوفه شنبه شلوار شیرینی شاعر شرکت شمال شادی شانس شجاع شکلات شال شوخ شاگرد شنل شتر شهرت شاید شمشاد شعله شمار صبح صحن صدا صورت صبر صندلی صنعت صحنه صبحانه صدف صابون صف صلح صفحه صاف صنف طلا طعم طناب طرف طبیعت طراحی طولانی طاووس طوطی طبل عشق عید عمر عدد عطر عکس عسل علم عمو عینک عروسک عکاس عقاب عنکبوت عجیب عمارت عالی عصر عادت عادی غار غذا غم غروب غرب غریبه غلط غنچه غبار غزل فرد فردا فرش فرزند فصل فکر فیل فن فرم فیلم فرق فروش فروشگاه فرودگاه فنجان فوتبال فرهنگ فرمان فشار فنر فرصت فاصله فریاد فال قدم قلب قلم قهوه قند قصه قایق قفل قوی قیمت قرمز قو قهرمان قطار قالی قاشق قدرت قلعه قطره قمر قفسه قاب قرن قصر قضا کار کاغذ کاش کباب کتاب کت کفش کلاس کلید کلاه کمک کم کنار کوه کوچک کوتاه کودک کوزه کیف کیک کی کشاورز کلمه کلاغ کبوتر کرم کاشی کهکشان کتابخانه کوهستان کوسه کودکی کاخ کشتی کنج کتری کارت کسی کاهو کاسه کدو کوچه کوره گاز گاو گرد گرگ گرم گریه گشت گفت گل گلاب گلزار گندم گنج گوش گوسفند گوشت گیاه گدی گلدان گردو گردش گوجه گربه گاری گوهر گلستان گفتگو گنبد گلبرگ گرما گشنه گیلاس گروه گردن گام گذر لاک لب لباس لحظه لیمو لیوان لوح لپ لانه لنگر لاغر لطف لقب لیر لوله لاله مادر مار ماست ماش ماشین ماه مثل مجلس مدرسه مرد مرغ مرز مس مست مسافر مشت مغز مگس ملت موج موز موش موی مهر مهمان مهربان میز میخ میوه میدان ماهی مه مو مدت منزل مداد مسابقه معلم مغازه مکان مقصد مهتاب مهندس موسیقی موتور ملخ مورچه مراسم مرکز مشق میهن مایع مرداب ماهر مدرس مدیر مردم مسیر منظره مهارت مثال مرحله مزرعه مرکب نام نان نبات نخ نرم نشان نقش نگاه نمک نوشت نوه نور نوید نوروز نیم نیمه نقاشی نهر نهال نفس نفر نسیم نصب نظر نمایش نقاش نوازنده نهایت نوشته نویسنده نشانه نردبان نارنج ناهار نگهبان نوشابه نیکی ناب نار نای ندا نوش نیش نرده نسبت نزدیک نمره نیاز هدف هدیه هر هزار هفت هفته هم هنر هوا هوس هست هشت هنوز هواپیما هندوانه همسایه همکار هنرمند همراه هتل هیجان هرم هوشیار وقت وزن ورزش وطن وفا ورق ولی وسیله ورودی واژه وجود وسط وارد یاد یار یخ یک یکی یاس یاقوت یخچال یاسمن یکشنبه یادگار یاری او من ما شما این که چه نه بد به با از".split(" ");
+const DSET = new Set(DICT);
+const CITIES = [
+  {n:"شیراز", e:"🌹", c:"#ec4899"}, {n:"اصفهان", e:"🏛️", c:"#38bdf8"}, {n:"تبریز", e:"🧶", c:"#f97316"},
+  {n:"یزد", e:"🏜️", c:"#eab308"}, {n:"رشت", e:"🌧️", c:"#22c55e"}, {n:"کیش", e:"🏝️", c:"#06b6d4"},
+  {n:"همدان", e:"⛰️", c:"#a78bfa"}, {n:"کرمان", e:"🌵", c:"#f43f5e"}, {n:"اهواز", e:"🌴", c:"#84cc16"}, {n:"تهران", e:"🌆", c:"#818cf8"}
+];
+function cityOf(i){ return CITIES[Math.floor(i/10) % CITIES.length]; }
+
+/* ============ ابزارها ============ */
+const $ = id => document.getElementById(id);
+const FA = '۰۱۲۳۴۵۶۷۸۹';
+const fa = n => String(n).replace(/\d/g, d => FA[d]);
+const KEY = 'kalameyab_v1';
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ return {}; } }
+const DEF = {coins:50, level:0, sound:true, vib:true, lastDaily:'', streak:0, totalWords:0, stars:{}, theme:'d', themes:['d'], mDate:'', m:null, spinDate:'', tut:false, best:0, tDate:'', tRuns:0};
+let S = Object.assign(JSON.parse(JSON.stringify(DEF)), load());
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function canForm(w, letters){
+  const m = {}; for(const c of letters) m[c] = (m[c]||0)+1;
+  for(const c of w){ if(!m[c]) return false; m[c]--; }
+  return true;
+}
+function toast(t){ const e=$('toast'); e.textContent=t; e.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>e.classList.remove('show'),2000); }
+function vib(ms){ if(S.vib && navigator.vibrate) try{ navigator.vibrate(ms); }catch(e){} }
+
+/* صدا */
+let ac;
+function beep(f, d, type='sine', v=.14, delay=0){
+  if(!S.sound) return;
+  try{
+    ac = ac || new (window.AudioContext||window.webkitAudioContext)();
+    const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + delay;
+    o.type = type; o.frequency.value = f;
+    g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.001, t+d);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+d);
+  }catch(e){}
+}
+const sfx = {
+  tap:()=>beep(520+Math.random()*80,.07),
+  ok:()=>{beep(660,.1);beep(880,.18,'sine',.14,.09)},
+  bad:()=>beep(150,.22,'sawtooth',.07),
+  coin:()=>{beep(988,.07,'square',.06);beep(1319,.14,'square',.06,.07)},
+  win:()=>[523,659,784,1047].forEach((f,i)=>beep(f,.25,'triangle',.16,i*.12))
+};
+
+/* ============ پس‌زمینه و لوگو ============ */
+(function(){
+  const L = 'ابپتثجچحخدذرزسشصضطظعغفقکگلمنوهی'.split('');
+  const bg = $('bgl');
+  for(let i=0;i<20;i++){
+    const s = document.createElement('span');
+    s.textContent = L[Math.floor(Math.random()*L.length)];
+    s.style.cssText = `left:${Math.random()*100}%;font-size:${30+Math.random()*60}px;animation-duration:${14+Math.random()*18}s;animation-delay:-${Math.random()*20}s`;
+    bg.appendChild(s);
+  }
+  const logo = $('logo');
+  'کلمه‌یاب'.replace('‌','').split('').forEach((c,i)=>{
+    const b = document.createElement('b'); b.textContent = c; b.style.animationDelay = (i*.15)+'s'; logo.appendChild(b);
+  });
+})();
+
+/* ============ صفحه‌ها و پنجره‌ها ============ */
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id===id)); }
+function openModal(html){ $('mbox').innerHTML = html; $('modal').classList.add('open'); }
+function closeModal(){ $('modal').classList.remove('open'); }
+$('modal').addEventListener('pointerdown', e=>{ if(e.target.id==='modal') closeModal(); });
+
+function refresh(){
+  $('coinsH').textContent = fa(S.coins);
+  $('coinsG').textContent = fa(S.coins);
+  $('playBtn').textContent = '▶ مرحله ' + fa(S.level+1);
+  $('c1').textContent = fa(HINT_COST);
+  $('c2').textContent = fa(REVEAL_COST);
+  $('dailyDot').style.display = dailyReady() ? 'inline-block' : 'none';
+  $('spinDot').style.display = spinReady() ? 'inline-block' : 'none';
+  $('missDot').style.display = missionReady() ? 'inline-block' : 'none';
+  $('starsH').textContent = fa(totalStars());
+}
+function addCoins(n){ S.coins += n; save(); refresh(); }
+function goHome(){ clearInterval(tInt); closeModal(); show('home'); refresh(); }
+
+/* ============ جایزه روزانه ============ */
+function today(){ return new Date().toDateString(); }
+function dailyReady(){ return S.lastDaily !== today(); }
+function nextStreak(){
+  const y = new Date(); y.setDate(y.getDate()-1);
+  return S.lastDaily === y.toDateString() ? (S.streak % 7) + 1 : 1;
+}
+function openDaily(manual){
+  const ready = dailyReady();
+  if(!ready && !manual) return;
+  const st = ready ? nextStreak() : S.streak;
+  let days = '';
+  for(let i=1;i<=7;i++){
+    days += `<div class="day ${i===st?'now':(i<st?'past':'')}">روز ${fa(i)}<b>${fa(DAILY[i-1])}</b>🪙</div>`;
+  }
+  openModal(`<h2>🎁 جایزه روزانه</h2><p>هر روز بیای جایزه‌ات بزرگ‌تر می‌شود!</p><div class="days">${days}</div>`+
+    (ready ? `<button class="big" style="width:100%" onclick="claimDaily()">دریافت ${fa(DAILY[st-1])} سکه</button>`
+           : `<p>جایزه امروز را گرفته‌ای. فردا دوباره بیا!</p>`) +
+    `<button class="close" onclick="closeModal()">بستن</button>`);
+}
+function claimDaily(){
+  const st = nextStreak();
+  S.streak = st; S.lastDaily = today(); addCoins(DAILY[st-1]);
+  sfx.coin(); closeModal(); toast('🎁 ' + fa(DAILY[st-1]) + ' سکه گرفتی!');
+}
+
+/* ============ فروشگاه ============ */
+function openShop(){
+  let h = `<h2>🛒 فروشگاه</h2><p>سکه‌هایت: <b>${fa(S.coins)}</b> 🪙</p>`;
+  PACKS.forEach(p=>{
+    h += `<div class="row"><div><b>${fa(p.coins)} سکه${p.tag?`<span class="tag">${p.tag}</span>`:''}</b><small>${p.name}</small></div>
+      <button class="buy" onclick="buy('${p.id}')">${p.price}</button></div>`;
+  });
+  if(TEST_MODE) h += `<p style="font-size:12px;opacity:.6">حالت آزمایشی: خرید واقعی انجام نمی‌شود.</p>`;
+  h += `<button class="close" onclick="closeModal()">بستن</button>`;
+  openModal(h);
+}
+function buy(id){
+  const p = PACKS.find(x=>x.id===id); if(!p) return;
+  if(TEST_MODE){
+    addCoins(p.coins); sfx.coin(); toast('✅ (آزمایشی) ' + fa(p.coins) + ' سکه اضافه شد'); openShop(); return;
+  }
+  // اینجا باید به سرویس پرداخت مایکت وصل شود. بعد از تأیید پرداخت: addCoins(p.coins)
+  toast('پرداخت هنوز به مایکت وصل نشده است');
+}
+
+/* ============ تنظیمات ============ */
+function openSettings(){
+  openModal(`<h2>⚙️ تنظیمات</h2>
+   <div class="row"><b>صدا</b><div class="switch ${S.sound?'on':''}" onclick="tog('sound')"></div></div>
+   <div class="row"><b>لرزش</b><div class="switch ${S.vib?'on':''}" onclick="tog('vib')"></div></div>
+   <div class="row"><div><b>آمار</b><small>${fa(S.totalWords)} کلمه پیدا کرده‌ای</small></div></div>
+   <button class="mid" style="background:#ff5d8f;box-shadow:0 5px 0 #a42e55;color:#fff;margin-top:8px" onclick="resetAll()">پاک کردن پیشرفت</button>
+   <button class="close" onclick="closeModal()">بستن</button>`);
+}
+function tog(k){ S[k] = !S[k]; save(); openSettings(); }
+function resetAll(){ if(confirm('همه‌ی پیشرفت و سکه‌ها پاک شود؟')){ S = JSON.parse(JSON.stringify(DEF)); save(); closeModal(); applyTheme(); refresh(); } }
+
+/* ============ منطق بازی ============ */
+let cur = null, sel = [], dragging = false;
+
+function play(){
+  show('game');
+  startLevel(S.level);
+}
+function startLevel(i){
+  clearInterval(tInt);
+  const L = i < LEVELS.length ? LEVELS[i] : genLevel(i);
+  const letters = Array.from(L.l);
+  const words = L.w.filter(w => canForm(w, letters)).map(w => ({w, found:false, rev:Array(w.length).fill(false)}));
+  words.sort((a,b)=>a.w.length-b.w.length);
+  cur = {i, letters, words, hints:0, combo:0, mode:'level', bonus:new Set()};
+  sel = []; dragging = false;
+  $('lvn').textContent = fa(i+1);
+  setMode('level');
+  const ct = cityOf(i);
+  $('city').textContent = '📍 ' + ct.n + ' · فصل ' + fa(Math.floor(i/10)+1);
+  $('game').style.backgroundImage = 'radial-gradient(circle at 50% 0%,' + ct.c + '66,transparent 55%)';
+  $('bn').textContent = '';
+  buildWheel(); renderWords(); updateProg(); draw(); refresh();
+}
+function buildWheel(){
+  const W = $('wheel');
+  const size = Math.max(210, Math.min(300, innerWidth-48, innerHeight*0.36));
+  W.style.width = W.style.height = size+'px';
+  W.querySelectorAll('.lt').forEach(e=>e.remove());
+  const n = cur.letters.length, c = size/2, ts = Math.min(56, size*.22), R = c - ts/2 - 8;
+  cur.pos = [];
+  cur.letters.forEach((ch,i)=>{
+    const a = -Math.PI/2 + i*2*Math.PI/n;
+    const x = c + R*Math.cos(a), y = c + R*Math.sin(a);
+    const el = document.createElement('div');
+    el.className = 'lt'; el.textContent = ch;
+    el.style.cssText = `width:${ts}px;height:${ts}px;left:${x-ts/2}px;top:${y-ts/2}px;font-size:${ts*.55}px;animation-delay:${i*45}ms`;
+    W.appendChild(el); cur.pos.push({x,y,el});
+  });
+  cur.hitR = ts*.62;
+  const L = $('lines'); L.setAttribute('width', size); L.setAttribute('height', size);
+}
+function renderWords(){
+  const box = $('words'); box.innerHTML = '';
+  box.style.setProperty('--bx', cur.words.length > 9 ? '29px' : '35px');
+  cur.words.forEach(o=>{
+    const d = document.createElement('div'); d.className = 'w' + (o.pop ? ' pop' : '');
+    for(let i=0;i<o.w.length;i++){
+      const b = document.createElement('span'); b.className = 'bx';
+      if(o.found || o.rev[i]){ b.textContent = o.w[i]; b.classList.add(o.found ? 'ok' : 'hint'); }
+      d.appendChild(b);
+    }
+    box.appendChild(d); o.pop = false;
+  });
+}
+function updateProg(){
+  const f = cur.words.filter(o=>o.found).length;
+  $('progbar').style.width = (f / cur.words.length * 100) + '%';
+}
+let msgT;
+function flash(text, cls){
+  const p = $('preview'); p.textContent = text; p.className = 'show ' + cls;
+  clearTimeout(msgT); msgT = setTimeout(()=>{ p.className = ''; }, 900);
+}
+function draw(){
+  cur.pos.forEach((p,i)=>p.el.classList.toggle('on', sel.includes(i)));
+  const pts = sel.map(i=>cur.pos[i].x + ',' + cur.pos[i].y);
+  if(dragging && sel.length && cur.mx != null) pts.push(cur.mx + ',' + cur.my);
+  $('pl').setAttribute('points', pts.join(' '));
+  if(dragging || sel.length){
+    const t = sel.map(i=>cur.letters[i]).join('');
+    const p = $('preview'); clearTimeout(msgT);
+    p.textContent = t; p.className = t ? 'show' : '';
+  }
+}
+function hit(e){
+  const r = $('wheel').getBoundingClientRect();
+  const x = e.clientX - r.left, y = e.clientY - r.top;
+  cur.mx = x; cur.my = y;
+  for(let i=0;i<cur.pos.length;i++){
+    const p = cur.pos[i];
+    if(Math.hypot(p.x-x, p.y-y) < cur.hitR){
+      if(!sel.includes(i)){ sel.push(i); sfx.tap(); vib(8); }
+      else if(sel.length > 1 && sel[sel.length-2] === i){ sel.pop(); sfx.tap(); }
+      break;
+    }
+  }
+  draw();
+}
+const W = $('wheel');
+W.addEventListener('pointerdown', e=>{ if(!cur) return; dragging = true; sel = []; try{ W.setPointerCapture(e.pointerId); }catch(_){} hit(e); });
+W.addEventListener('pointermove', e=>{ if(dragging) hit(e); });
+['pointerup','pointercancel'].forEach(ev => W.addEventListener(ev, ()=>{
+  if(!dragging) return;
+  dragging = false;
+  const word = sel.map(i=>cur.letters[i]).join('');
+  sel = []; draw();
+  if(word.length >= 2) submit(word); else $('preview').className = '';
+}));
+
+function submit(word){
+  if(cur.mode === 'time'){ timeSubmit(word); return; }
+  const o = cur.words.find(x=>x.w === word);
+  if(!o){
+    if(word.length >= 3 && DSET.has(word)){ bonusWord(word); return; }
+    cur.combo = 0; flash(word, 'bad'); sfx.bad(); vib([30,40,30]); return;
+  }
+  if(o.found){ flash('قبلاً پیدا شده', 'info'); sfx.bad(); return; }
+  o.found = true; o.pop = true;
+  cur.combo++;
+  let gain = word.length >= 5 ? 2 : 1;
+  let txt = '+' + fa(gain) + ' 🪙';
+  if(cur.combo >= 3 && cur.combo % 3 === 0){ gain += 1; txt = 'کمبو ×' + fa(cur.combo) + ' 🔥 +' + fa(gain) + ' 🪙'; }
+  S.totalWords++; addCoins(gain); mission('words', 1);
+  flash(txt, 'good'); sfx.ok(); vib(25);
+  renderWords(); updateProg();
+  if(cur.words.every(x=>x.found)) setTimeout(win, 650);
+}
+function shuffle(){
+  if(!cur) return;
+  for(let i=cur.letters.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [cur.letters[i],cur.letters[j]] = [cur.letters[j],cur.letters[i]]; }
+  sel = []; buildWheel(); draw(); sfx.tap();
+}
+function pay(cost){
+  if(S.coins < cost){ toast('سکه‌ات کافی نیست'); openShop(); return false; }
+  S.coins -= cost; save(); refresh(); return true;
+}
+function hint(){
+  const pool = cur.words.filter(o=>!o.found);
+  if(!pool.length) return;
+  if(!pay(HINT_COST)) return;
+  const o = pool[Math.floor(Math.random()*pool.length)];
+  const i = o.rev.findIndex(r=>!r);
+  o.rev[i] = true; cur.hints++;
+  if(o.rev.every(Boolean)){ o.found = true; o.pop = true; }
+  sfx.ok(); renderWords(); updateProg();
+  if(cur.words.every(x=>x.found)) setTimeout(win, 650);
+}
+function revealWord(){
+  const pool = cur.words.filter(o=>!o.found);
+  if(!pool.length) return;
+  if(!pay(REVEAL_COST)) return;
+  const o = pool[Math.floor(Math.random()*pool.length)];
+  o.found = true; o.pop = true; cur.hints += 2;
+  sfx.ok(); renderWords(); updateProg();
+  if(cur.words.every(x=>x.found)) setTimeout(win, 650);
+}
+function win(){
+  const noHint = cur.hints === 0;
+  const n = noHint ? 3 : (cur.hints <= 2 ? 2 : 1);
+  const first = cur.i === S.level;
+  const gain = first ? 10 + (noHint ? 5 : 0) : 0;
+  if(first) S.level++;
+  S.stars[cur.i] = Math.max(S.stars[cur.i] || 0, n);
+  if(gain) addCoins(gain); else { save(); refresh(); }
+  mission('levels', 1); if(noHint) mission('clean', 1);
+  sfx.win(); vib([40,60,40,60,120]); confetti();
+  const stars = '⭐'.repeat(n) + '☆'.repeat(3-n);
+  openModal(`<h2>🎉 آفرین!</h2><div class="stars">${stars}</div>
+    <p>مرحله را تمام کردی<br>${gain ? 'جایزه: <b>'+fa(gain)+'</b> 🪙' : 'سکه‌ی بیشتر در مرحله‌های جدید است'}${noHint?'<br>بدون راهنما بودی!':''}</p>
+    <button class="big" style="width:100%" onclick="nextLevel()">مرحله بعد ◀</button>
+    <button class="close" onclick="goHome()">منو</button>`);
+}
+function nextLevel(){
+  closeModal();
+  startLevel(cur.i + 1);
+}
+
+/* ============ کاغذرنگی ============ */
+function confetti(){
+  const cv = $('cf'), ctx = cv.getContext('2d');
+  cv.width = innerWidth; cv.height = innerHeight;
+  const cols = ['#2ee6c5','#ffd166','#ff5d8f','#9a7cff','#fff'];
+  const ps = Array.from({length:120}, ()=>({x:Math.random()*cv.width, y:-20-Math.random()*cv.height*.5, vx:(Math.random()-.5)*4, vy:2+Math.random()*5, s:5+Math.random()*7, r:Math.random()*6, c:cols[Math.floor(Math.random()*cols.length)]}));
+  let t = 0;
+  (function f(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ps.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.r+=.15; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle=p.c; ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6); ctx.restore(); });
+    if(++t < 150) requestAnimationFrame(f); else ctx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+
+/* ============ نقشه مراحل ============ */
+function totalStars(){ return Object.values(S.stars).reduce((a,b)=>a+b, 0); }
+function openMap(){
+  clearInterval(tInt); closeModal(); show('map');
+  $('starsM').textContent = fa(totalStars());
+  const g = $('mapgrid'); g.innerHTML = '';
+  const total = Math.max(LEVELS.length, S.level + 9);
+  for(let i = 0; i < total; i++){
+    if(i % 10 === 0){
+      const c = cityOf(i), h = document.createElement('div');
+      h.className = 'chh'; h.textContent = c.e + ' ' + c.n + ' · فصل ' + fa(i/10 + 1); g.appendChild(h);
+    }
+    const locked = i > S.level, st = S.stars[i] || 0;
+    const b = document.createElement('button');
+    b.className = 'lvb' + (locked ? ' lock' : '') + (i === S.level ? ' now' : '');
+    b.innerHTML = locked ? '🔒' : '<b>' + fa(i+1) + '</b><span>' + '⭐'.repeat(st) + '☆'.repeat(3-st) + '</span>';
+    b.onclick = () => { if(locked) toast('اول مرحله‌های قبل را تمام کن'); else { show('game'); startLevel(i); } };
+    g.appendChild(b);
+  }
+}
+
+/* ============ ماموریت‌های روزانه ============ */
+function todayM(){
+  if(!S.m || S.mDate !== today()){ S.mDate = today(); S.m = {words:0, levels:0, clean:0, claimed:[false,false,false]}; save(); }
+}
+function mission(k, n){ todayM(); S.m[k] += n; save(); refresh(); }
+function missionReady(){ todayM(); return MISSIONS.some((m,i)=>S.m[m.k] >= m.goal && !S.m.claimed[i]); }
+function openMissions(){
+  todayM();
+  let h = '<h2>🎯 ماموریت‌های امروز</h2><p>هر روز ماموریت‌ها از نو شروع می‌شوند.</p>';
+  MISSIONS.forEach((m,i)=>{
+    const v = Math.min(S.m[m.k], m.goal), done = v >= m.goal, got = S.m.claimed[i];
+    h += `<div class="row"><div><b>${m.text}</b><small>${fa(v)} از ${fa(m.goal)} · جایزه: ${fa(m.reward)} 🪙</small></div>` +
+      (got ? '<span>✅</span>' : done ? `<button class="buy" onclick="claimMission(${i})">دریافت</button>` : '<span style="opacity:.5">⏳</span>') + '</div>';
+  });
+  h += '<button class="close" onclick="closeModal()">بستن</button>';
+  openModal(h);
+}
+function claimMission(i){
+  if(S.m.claimed[i]) return;
+  S.m.claimed[i] = true; addCoins(MISSIONS[i].reward); sfx.coin(); openMissions();
+}
+
+/* ============ چرخ شانس ============ */
+function spinReady(){ return S.spinDate !== today(); }
+function openSpin(){
+  if(!spinReady()){ openModal('<h2>🎡 چرخ شانس</h2><p>امروز چرخاندی. فردا دوباره بیا!</p><button class="close" onclick="closeModal()">بستن</button>'); return; }
+  openModal('<h2>🎡 چرخ شانس</h2><p>روزی یک بار شانست را امتحان کن!</p><div class="spinner" id="spinner">🎡</div><button class="big" style="width:100%" id="spinBtn" onclick="doSpin()">بچرخان!</button><button class="close" onclick="closeModal()">بستن</button>');
+}
+function doSpin(){
+  if(!spinReady()) return;
+  S.spinDate = today(); save();
+  $('spinBtn').style.display = 'none';
+  const sp = $('spinner'); sp.classList.add('go'); sfx.tap();
+  const prize = SPIN[Math.floor(Math.random()*SPIN.length)];
+  setTimeout(()=>{
+    sp.classList.remove('go'); sp.style.fontSize = '46px'; sp.textContent = '🪙 ' + fa(prize);
+    addCoins(prize); sfx.win(); confetti();
+  }, 1600);
+}
+
+/* ============ پوسته‌ها ============ */
+function applyTheme(){
+  const t = THEMES.find(x=>x.id === S.theme) || THEMES[0];
+  document.body.style.background = t.bg;
+  const m = document.querySelector('meta[name=theme-color]'); if(m) m.content = t.base;
+}
+function openThemes(){
+  let h = '<h2>🎨 پوسته‌ها</h2><p>ظاهر بازی را عوض کن. سکه‌هایت: <b>' + fa(S.coins) + '</b> 🪙</p>';
+  THEMES.forEach(t=>{
+    const own = S.themes.includes(t.id), on = S.theme === t.id;
+    h += `<div class="row"><div style="display:flex;gap:10px;align-items:center"><span class="sw" style="background:${t.bg}"></span><b>${t.name}</b></div>` +
+      (on ? '<span>✅ فعال</span>' : own ? `<button class="buy" onclick="useTheme('${t.id}')">انتخاب</button>` : `<button class="buy" onclick="useTheme('${t.id}')">🪙 ${fa(t.price)}</button>`) + '</div>';
+  });
+  h += '<button class="close" onclick="closeModal()">بستن</button>';
+  openModal(h);
+}
+function useTheme(id){
+  const t = THEMES.find(x=>x.id === id); if(!t) return;
+  if(!S.themes.includes(id)){
+    if(S.coins < t.price){ toast('سکه‌ات کافی نیست'); return; }
+    S.coins -= t.price; S.themes.push(id); sfx.coin();
+  }
+  S.theme = id; save(); applyTheme(); refresh(); openThemes();
+}
+
+/* ============ مولد مرحله ============ */
+function rng(seed){
+  let a = seed >>> 0;
+  return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+const XTRA = 'اریتنسمهد';
+const BASES = DICT.filter(w => w.length >= 4 && w.length <= 7);
+function genCore(r, want, minNeed){
+  const pool = BASES.filter(w => w.length >= want - 1 && w.length <= want);
+  const P = pool.length ? pool : BASES;
+  let best = null;
+  for(let t = 0; t < 150; t++){
+    const letters = Array.from(P[Math.floor(r() * P.length)]);
+    if(letters.length < 8 && r() < .6) letters.push(XTRA[Math.floor(r() * XTRA.length)]);
+    const targets = DICT.filter(w => w.length >= 3 && canForm(w, letters));
+    if(!best || targets.length > best.targets.length) best = {letters, targets};
+    if(targets.length >= minNeed) break;
+  }
+  for(let i = best.letters.length - 1; i > 0; i--){
+    const j = Math.floor(r() * (i + 1)); [best.letters[i], best.letters[j]] = [best.letters[j], best.letters[i]];
+  }
+  return best;
+}
+function genLevel(n){
+  const r = rng(n * 7919 + 13);
+  const k = n - LEVELS.length;
+  const want = Math.min(7, 5 + Math.floor(k / 25));
+  const core = genCore(r, want, 7);
+  const sh = a => a.map(v => [r(), v]).sort((x, y) => x[0] - y[0]).map(x => x[1]);
+  const long = sh(core.targets.filter(w => w.length >= 4)).sort((a, b) => b.length - a.length);
+  const cap = Math.min(10, 6 + Math.floor(k / 30));
+  const pick = long.slice(0, cap);
+  const short = sh(core.targets.filter(w => w.length === 3));
+  while(pick.length < Math.min(cap, 6) && short.length) pick.push(short.pop());
+  while(pick.length < 3 && short.length) pick.push(short.pop());
+  return {l: core.letters.join(''), w: pick};
+}
+function bonusWord(w){
+  if(cur.bonus.has(w)){ flash('قبلاً پیدا شده', 'info'); sfx.bad(); return; }
+  cur.bonus.add(w);
+  let t = '✨ کلمه‌ی جایزه';
+  if(cur.bonus.size <= 5){ addCoins(1); t += ' +' + fa(1) + ' 🪙'; }
+  $('bn').textContent = '✨ کلمه‌ی جایزه: ' + fa(cur.bonus.size);
+  flash(t, 'good'); sfx.ok(); vib(20);
+}
+
+/* ============ حالت زمان‌دار و چالش ============ */
+function setMode(m){
+  $('game').classList.toggle('timed', m === 'time');
+  $('lvbox').style.display = m === 'time' ? 'none' : '';
+  $('tbox').style.display = m === 'time' ? '' : 'none';
+}
+let tInt = null, shareTxt = '';
+function openTimed(){
+  const code = String(100000 + Math.floor(Math.random() * 900000));
+  openModal(`<h2>⏱ چالش زمان‌دار</h2>
+    <p>۶۰ ثانیه وقت داری تا هر چه می‌توانی کلمه‌ی ۳ حرفی یا بیشتر پیدا کنی. دوستانت با همین کد، همین حرف‌ها را می‌گیرند!</p>
+    <p>بهترین امتیاز تو: <b>${fa(S.best)}</b></p>
+    <button class="big" style="width:100%" onclick="startTimed('${code}')">شروع (کد ${fa(code)})</button>
+    <p style="margin-top:14px">کد دوستت را داری؟</p>
+    <input id="fcode" class="inp" type="tel" maxlength="6" placeholder="······">
+    <button class="mid alt" style="width:100%" onclick="useCode()">شروع با این کد</button>
+    <button class="close" onclick="closeModal()">بستن</button>`);
+}
+function useCode(){
+  const v = $('fcode').value.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/\D/g, '');
+  if(v.length !== 6){ toast('کد باید ۶ رقم باشد'); return; }
+  startTimed(v);
+}
+function startTimed(code){
+  closeModal(); clearInterval(tInt);
+  const r = rng(parseInt(code, 10) * 31 + 7);
+  const core = genCore(r, 7, 12);
+  cur = {mode:'time', code, letters:core.letters, found:new Set(), score:0, left:60, combo:0, i:-1, words:[], pos:[]};
+  sel = []; dragging = false;
+  show('game'); setMode('time');
+  $('city').textContent = '⏱ کد چالش: ' + fa(code);
+  $('game').style.backgroundImage = 'radial-gradient(circle at 50% 0%,#ff5d8f66,transparent 55%)';
+  $('words').innerHTML = ''; $('bn').textContent = ''; $('preview').className = '';
+  $('sc').textContent = fa(0); $('tm').textContent = fa(60); $('progbar').style.width = '100%';
+  buildWheel(); draw(); refresh();
+  tInt = setInterval(() => {
+    cur.left--;
+    $('tm').textContent = fa(Math.max(0, cur.left));
+    $('progbar').style.width = Math.max(0, cur.left / 60 * 100) + '%';
+    if(cur.left <= 0){ clearInterval(tInt); endTimed(); }
+  }, 1000);
+}
+function timeSubmit(word){
+  if(cur.left <= 0) return;
+  if(word.length < 3 || !DSET.has(word)){ flash(word, 'bad'); sfx.bad(); vib([30,40,30]); return; }
+  if(cur.found.has(word)){ flash('قبلاً پیدا شده', 'info'); sfx.bad(); return; }
+  cur.found.add(word);
+  const pts = Math.max(1, word.length - 2);
+  cur.score += pts; $('sc').textContent = fa(cur.score);
+  const c = document.createElement('span'); c.className = 'chip2'; c.textContent = word;
+  $('words').prepend(c);
+  flash('+' + fa(pts), 'good'); sfx.ok(); vib(20);
+}
+function endTimed(){
+  sel = []; dragging = false; draw();
+  const score = cur.score, n = cur.found.size, code = cur.code;
+  const newBest = score > S.best; if(newBest) S.best = score;
+  if(S.tDate !== today()){ S.tDate = today(); S.tRuns = 0; }
+  const reward = S.tRuns < 3 ? Math.min(5, Math.floor(score / 6)) : 0;
+  S.tRuns++;
+  if(reward) addCoins(reward); else { save(); refresh(); }
+  if(n) mission('words', n);
+  shareTxt = 'در بازی «کلمه‌یاب» با کد چالش ' + fa(code) + ' امتیاز ' + fa(score) + ' گرفتم! می‌توانی بیشتر بگیری؟ کد را در بخش «چالش زمان‌دار» وارد کن.';
+  sfx.win(); confetti();
+  openModal(`<h2>⏱ زمان تمام شد!</h2><div class="stars">${fa(score)}</div>
+    <p>${fa(n)} کلمه پیدا کردی${newBest ? '<br>🏆 رکورد جدید!' : ''}<br>${reward ? 'جایزه: <b>' + fa(reward) + '</b> 🪙' : 'سکه‌ی امروز این حالت تمام شده یا امتیاز کم بود'}</p>
+    <button class="big" style="width:100%" onclick="shareRes()">📤 ارسال نتیجه به دوستان</button>
+    <button class="mid alt" style="width:100%;margin-top:10px" onclick="openTimed()">دوباره</button>
+    <button class="close" onclick="goHome()">منو</button>`);
+}
+function shareRes(){
+  if(navigator.share){ navigator.share({text: shareTxt}).catch(() => {}); }
+  else if(navigator.clipboard){ navigator.clipboard.writeText(shareTxt).then(() => toast('متن کپی شد؛ برای دوستت بفرست')).catch(() => toast(shareTxt)); }
+  else toast(shareTxt);
+}
+
+/* ============ آموزش ============ */
+function openTutorial(){
+  openModal(`<h2>👋 خوش آمدی!</h2>
+    <div class="row"><b>۱</b><div style="flex:1">انگشتت را روی حرف‌ها بکش تا کلمه بسازی</div></div>
+    <div class="row"><b>۲</b><div style="flex:1">کلمه‌ی درست در جدول بالا می‌نشیند و سکه می‌گیری</div></div>
+    <div class="row"><b>۳</b><div style="flex:1">کلمه‌ی معنی‌دار بیرون از جدول هم «کلمه‌ی جایزه» است</div></div>
+    <div class="row"><b>۴</b><div style="flex:1">گیر کردی؟ از 💡 راهنما استفاده کن</div></div>
+    <button class="big" style="width:100%;margin-top:8px" onclick="endTut()">بزن بریم!</button>`);
+}
+function endTut(){ S.tut = true; save(); closeModal(); if(dailyReady()) setTimeout(() => openDaily(false), 300); }
+
+/* ============ شروع ============ */
+applyTheme();
+refresh();
+if(!S.tut) setTimeout(openTutorial, 300);
+else if(dailyReady()) setTimeout(() => openDaily(false), 500);
+</script>
+</body>
+</html>
