@@ -81,6 +81,40 @@ button{font-family:inherit;color:inherit;border:0;cursor:pointer}
 .timed .tl.h{display:none}
 .chh{grid-column:1/-1;font-weight:800;font-size:15px;margin-top:8px;opacity:.95}
 .inp{width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:20px;text-align:center;margin:8px 0;font-family:inherit;direction:ltr;user-select:text;-webkit-user-select:text}
+/* چرخ شانس فانتزی */
+.fw{position:relative;width:290px;height:290px;margin:22px auto 16px;direction:ltr}
+.fw .aura{position:absolute;inset:-26px;border-radius:50%;background:repeating-conic-gradient(rgba(255,214,120,.34) 0 5deg,transparent 5deg 15deg);-webkit-mask:radial-gradient(circle,transparent 52%,#000 58%,transparent 71%);mask:radial-gradient(circle,transparent 52%,#000 58%,transparent 71%);animation:auraSpin 24s linear infinite}
+@keyframes auraSpin{to{transform:rotate(360deg)}}
+.fw .glow{position:absolute;inset:-6px;border-radius:50%;box-shadow:0 0 34px 6px rgba(255,200,90,.55),0 0 80px 14px rgba(154,124,255,.45);animation:glowP 2.4s ease-in-out infinite}
+@keyframes glowP{50%{opacity:.55}}
+.fw .rim{position:absolute;inset:0;border-radius:50%;background:conic-gradient(#fff4b8,#f5b73a,#9a5f08,#ffe38a,#f5b73a,#8a5206,#ffe9a0,#f5b73a,#fff4b8);box-shadow:0 10px 28px rgba(0,0,0,.55),inset 0 0 0 3px rgba(255,255,255,.55),inset 0 0 12px rgba(80,40,0,.6)}
+.fw .disc{position:absolute;inset:17px;border-radius:50%;box-shadow:inset 0 0 0 3px #7a4a06,inset 0 0 26px rgba(0,0,0,.55);overflow:hidden}
+.fw .disc::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 32% 24%,rgba(255,255,255,.38),transparent 46%),radial-gradient(circle,transparent 55%,rgba(0,0,0,.3));pointer-events:none}
+.fw .sep{position:absolute;left:50%;top:50%;width:3px;height:128px;margin:-128px 0 0 -1.5px;transform-origin:50% 100%;background:linear-gradient(180deg,#ffe9a0,#c98a12);opacity:.9;border-radius:2px}
+.fw .bl{position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:#fff6c8;box-shadow:0 0 8px 2px #ffd166;animation:blink 1.2s steps(1) infinite}
+.fw .bl:nth-child(even){animation-delay:.6s}
+@keyframes blink{50%{background:#8a5a10;box-shadow:none}}
+.fw .lb{position:absolute;left:50%;top:50%;width:54px;margin-left:-27px;height:112px;margin-top:-112px;transform-origin:50% 100%;text-align:center;color:#fff;font-weight:800;font-size:19px;line-height:1.05;text-shadow:0 2px 4px #000a;padding-top:10px;transition:color .1s}
+.fw .lb small{display:block;font-size:12px;margin-top:2px}
+.fw .lb.big{font-size:24px;color:#fff3b0}
+.fw .lb.big::before{content:"👑";display:block;font-size:14px;margin-bottom:-2px}
+.fw .lb.cur{color:#fff3b0;text-shadow:0 0 10px #ffd166,0 0 18px #ffd166}
+.fw .lb.hit{color:#fff;text-shadow:0 0 12px #fff,0 0 24px #ffd166,0 0 36px #ff5d8f;animation:hitP .5s ease-in-out infinite alternate}
+@keyframes hitP{to{transform:var(--r) scale(1.18)}}
+.fw .nd{position:absolute;inset:0;pointer-events:none;filter:drop-shadow(0 3px 5px rgba(0,0,0,.7))}
+.fw .nd::before{content:"";position:absolute;left:50%;top:22px;width:26px;height:126px;margin-left:-13px;background:linear-gradient(90deg,#8a5206 0,#ffe9a0 38%,#fff 50%,#e0a21e 62%,#8a5206 100%);clip-path:polygon(50% 0,100% 74%,50% 100%,0 74%)}
+.fw .nd::after{content:"";position:absolute;left:50%;top:18px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:#fff;box-shadow:0 0 12px 5px #ff5d8f,0 0 22px 8px #ffd166}
+.fw .hub{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffd1e6,#ff5d8f 45%,#7a1244);border:5px solid #f5b73a;box-shadow:0 0 0 2px #7a4a06,0 3px 10px #000a,0 0 16px 2px rgba(255,93,143,.7)}
+.fw .sp{position:absolute;font-size:18px;animation:tw 1.8s ease-in-out infinite;pointer-events:none}
+@keyframes tw{0%,100%{opacity:.15;transform:scale(.5) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(25deg)}}
+/* قفل صفحه و دکمه‌ی کوچک چرخ */
+html,body{position:fixed;inset:0;width:100%;overscroll-behavior:none;touch-action:manipulation}
+#mbox{overflow-x:hidden;overscroll-behavior:contain}
+#mbox.nosc{overflow:hidden}
+.big.sbtn{display:block;width:160px;margin:0 auto;padding:10px 12px;border-radius:16px;font-size:16px;box-shadow:0 4px 0 #0b7f70,0 8px 14px rgba(0,0,0,.3)}
+.big.sbtn:active{transform:translateY(3px);box-shadow:0 1px 0 #0b7f70}
+@media (max-height:700px){.nosc .fw{transform:scale(.82);margin:-14px auto -6px}}
+@media (max-height:600px){.nosc .fw{transform:scale(.68);margin:-34px auto -20px}}
 /* modal */
 #modal{position:fixed;inset:0;background:rgba(5,2,20,.65);display:none;align-items:center;justify-content:center;z-index:10;padding:18px;backdrop-filter:blur(4px)}
 #modal.open{display:flex}
@@ -122,6 +156,7 @@ button{font-family:inherit;color:inherit;border:0;cursor:pointer}
     <button class="mid sm" onclick="openSpin()">🎡 چرخ شانس<span class="dot" id="spinDot" style="display:none">!</span></button>
     <button class="mid sm alt" onclick="openShop()">🛒 فروشگاه سکه</button>
     <button class="mid sm alt" onclick="openThemes()">🎨 پوسته‌ها</button>
+    <button class="mid sm alt" onclick="openAchievements()">🏆 افتخارات و آمار</button>
     <button class="mid sm alt" style="grid-column:span 2" onclick="openSettings()">⚙️ تنظیمات</button>
   </div>
 </section>
@@ -168,7 +203,8 @@ button{font-family:inherit;color:inherit;border:0;cursor:pointer}
 const TEST_MODE = true;
 const HINT_COST = 20, REVEAL_COST = 50;
 const DAILY = [5, 8, 10, 15, 20, 25, 50];
-const SPIN = [1,1,2,2,3,3,5,5,8,15];
+const SPIN = [8,12,15,20,30,45,70,100];        // گزینه‌های چرخ (بیشترین جایزه ۱۰۰ سکه)
+const SPIN_W = [24,22,18,14,10,7,4,1];       // شانس هر گزینه؛ میانگین جایزه حدود ۲۰ سکه
 const MISSIONS = [
   {k:'words',  goal:15, reward:6,  text:'۱۵ کلمه پیدا کن'},
   {k:'levels', goal:2,  reward:8,  text:'۲ مرحله را تمام کن'},
@@ -202,7 +238,7 @@ const LEVELS = [
  {l:"ایران", w:["ایران","یار","ران","نار","ریا","رای","نای"]},
  {l:"فرزند", w:["فرزند","فرد","نفر","فن","زن","رند","درز"]},
  {l:"پرنده", w:["پرنده","پرده","نرده","پند","دره","رند","پر"]},
- {l:"زندگی", w:["زندگی","زند","زن","دین","دیگ","زین","گدی"]},
+ {l:"زندگی", w:["زندگی","زند","زن","دین","دیگ","زین"]},
  {l:"مدرسه", w:["مدرسه","درس","مرد","سرد","سد","دم","سر"]},
  {l:"شکلات", w:["شکلات","شکل","تلاش","کاش","لاک","تاک"]},
  {l:"انگشت", w:["انگشت","گشت","تنگ","شنا","تنش"]},
@@ -239,7 +275,7 @@ const FA = '۰۱۲۳۴۵۶۷۸۹';
 const fa = n => String(n).replace(/\d/g, d => FA[d]);
 const KEY = 'kalameyab_v1';
 function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ return {}; } }
-const DEF = {coins:50, level:0, sound:true, vib:true, lastDaily:'', streak:0, totalWords:0, stars:{}, theme:'d', themes:['d'], mDate:'', m:null, spinDate:'', tut:false, best:0, tDate:'', tRuns:0};
+const DEF = {coins:50, level:0, sound:true, vib:true, lastDaily:'', streak:0, totalWords:0, stars:{}, theme:'d', themes:['d'], mDate:'', m:null, spinDate:'', tut:false, best:0, tDate:'', tRuns:0, achievements:[]};
 let S = Object.assign(JSON.parse(JSON.stringify(DEF)), load());
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 function canForm(w, letters){
@@ -288,8 +324,10 @@ const sfx = {
 
 /* ============ صفحه‌ها و پنجره‌ها ============ */
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id===id)); }
-function openModal(html){ $('mbox').innerHTML = html; $('modal').classList.add('open'); }
+function openModal(html){ $('mbox').classList.remove('nosc'); $('mbox').innerHTML = html; $('modal').classList.add('open'); }
 function closeModal(){ $('modal').classList.remove('open'); }
+$('mbox').addEventListener('touchmove', e => { if($('mbox').classList.contains('nosc')) e.preventDefault(); }, {passive:false});
+$('modal').addEventListener('touchmove', e => { if(e.target.id === 'modal') e.preventDefault(); }, {passive:false});
 $('modal').addEventListener('pointerdown', e=>{ if(e.target.id==='modal') closeModal(); });
 
 function refresh(){
@@ -363,6 +401,43 @@ function openSettings(){
 }
 function tog(k){ S[k] = !S[k]; save(); openSettings(); }
 function resetAll(){ if(confirm('همه‌ی پیشرفت و سکه‌ها پاک شود؟')){ S = JSON.parse(JSON.stringify(DEF)); save(); closeModal(); applyTheme(); refresh(); } }
+
+/* ============ افتخارات و آمار ============ */
+const ACHIEVEMENTS = [
+  {id:'w10', title:'واژه‌شناس', desc:'۱۰ کلمه پیدا کن', goal:10, reward:10, value:()=>S.totalWords},
+  {id:'w50', title:'شکارچی کلمات', desc:'۵۰ کلمه پیدا کن', goal:50, reward:25, value:()=>S.totalWords},
+  {id:'w150', title:'استاد واژه‌ها', desc:'۱۵۰ کلمه پیدا کن', goal:150, reward:60, value:()=>S.totalWords},
+  {id:'l5', title:'ماجراجوی تازه‌کار', desc:'۵ مرحله را تمام کن', goal:5, reward:20, value:()=>S.level},
+  {id:'l20', title:'جهان‌گرد', desc:'۲۰ مرحله را تمام کن', goal:20, reward:50, value:()=>S.level},
+  {id:'l50', title:'افسانه‌ی کلمه‌یاب', desc:'۵۰ مرحله را تمام کن', goal:50, reward:100, value:()=>S.level},
+  {id:'stars15', title:'ستاره‌چین', desc:'۱۵ ستاره جمع کن', goal:15, reward:35, value:()=>totalStars()},
+  {id:'time20', title:'استاد سرعت', desc:'در چالش زمان‌دار ۲۰ امتیاز بگیر', goal:20, reward:30, value:()=>S.best}
+];
+function checkAchievements(){
+  if(!Array.isArray(S.achievements)) S.achievements=[];
+  let earned=[];
+  ACHIEVEMENTS.forEach(a=>{
+    if(a.value()>=a.goal && !S.achievements.includes(a.id)){
+      S.achievements.push(a.id); S.coins+=a.reward; earned.push(a);
+    }
+  });
+  if(earned.length){ save(); refresh(); earned.forEach(a=>toast('🏆 افتخار «'+a.title+'» باز شد! +'+fa(a.reward)+' سکه')); sfx.win(); }
+  else save();
+}
+function openAchievements(){
+  if(!Array.isArray(S.achievements)) S.achievements=[];
+  let h='<h2>🏆 افتخارات و آمار</h2>';
+  h+='<div class="row"><div><b>مرحله‌های تمام‌شده</b><small>'+fa(S.level)+'</small></div><span>🗺️</span></div>';
+  h+='<div class="row"><div><b>کلمه‌های پیدا شده</b><small>'+fa(S.totalWords)+'</small></div><span>🔤</span></div>';
+  h+='<div class="row"><div><b>ستاره‌های جمع‌شده</b><small>'+fa(totalStars())+'</small></div><span>⭐</span></div>';
+  h+='<div class="row"><div><b>بهترین امتیاز زمان‌دار</b><small>'+fa(S.best)+'</small></div><span>⏱️</span></div>';
+  h+='<h3 style="margin:14px 0 8px">نشان‌های ماجراجویی</h3>';
+  ACHIEVEMENTS.forEach(a=>{
+    const v=Math.min(a.goal,a.value()), got=S.achievements.includes(a.id);
+    h+='<div class="row"><div style="flex:1"><b>'+(got?'🏅 ':'🔒 ')+a.title+'</b><small>'+a.desc+' · '+fa(v)+' از '+fa(a.goal)+' · جایزه '+fa(a.reward)+' سکه</small><div style="height:6px;border-radius:8px;background:#ffffff25;margin-top:7px;overflow:hidden"><div style="height:100%;width:'+(v/a.goal*100)+'%;background:linear-gradient(90deg,#2ee6c5,#ffd166)"></div></div></div><span>'+(got?'✅':'✨')+'</span></div>';
+  });
+  h+='<button class="close" onclick="closeModal()">بستن</button>'; openModal(h);
+}
 
 /* ============ منطق بازی ============ */
 let cur = null, sel = [], dragging = false;
@@ -476,7 +551,7 @@ function submit(word){
   let gain = word.length >= 5 ? 2 : 1;
   let txt = '+' + fa(gain) + ' 🪙';
   if(cur.combo >= 3 && cur.combo % 3 === 0){ gain += 1; txt = 'کمبو ×' + fa(cur.combo) + ' 🔥 +' + fa(gain) + ' 🪙'; }
-  S.totalWords++; addCoins(gain); mission('words', 1);
+  S.totalWords++; addCoins(gain); mission('words', 1); checkAchievements();
   flash(txt, 'good'); sfx.ok(); vib(25);
   renderWords(); updateProg();
   if(cur.words.every(x=>x.found)) setTimeout(win, 650);
@@ -518,7 +593,7 @@ function win(){
   if(first) S.level++;
   S.stars[cur.i] = Math.max(S.stars[cur.i] || 0, n);
   if(gain) addCoins(gain); else { save(); refresh(); }
-  mission('levels', 1); if(noHint) mission('clean', 1);
+  mission('levels', 1); if(noHint) mission('clean', 1); checkAchievements();
   sfx.win(); vib([40,60,40,60,120]); confetti();
   const stars = '⭐'.repeat(n) + '☆'.repeat(3-n);
   openModal(`<h2>🎉 آفرین!</h2><div class="stars">${stars}</div>
@@ -564,6 +639,8 @@ function openMap(){
     b.onclick = () => { if(locked) toast('اول مرحله‌های قبل را تمام کن'); else { show('game'); startLevel(i); } };
     g.appendChild(b);
   }
+  const inf = document.createElement('div'); inf.className = 'chh'; inf.textContent = '♾️ مرحله‌ها هیچ‌وقت تمام نمی‌شوند...'; g.appendChild(inf);
+  const nowEl = g.querySelector('.now'); if(nowEl) setTimeout(() => nowEl.scrollIntoView({block:'center'}), 60);
 }
 
 /* ============ ماموریت‌های روزانه ============ */
@@ -590,20 +667,82 @@ function claimMission(i){
 
 /* ============ چرخ شانس ============ */
 function spinReady(){ return S.spinDate !== today(); }
-function openSpin(){
-  if(!spinReady()){ openModal('<h2>🎡 چرخ شانس</h2><p>امروز چرخاندی. فردا دوباره بیا!</p><button class="close" onclick="closeModal()">بستن</button>'); return; }
-  openModal('<h2>🎡 چرخ شانس</h2><p>روزی یک بار شانست را امتحان کن!</p><div class="spinner" id="spinner">🎡</div><button class="big" style="width:100%" id="spinBtn" onclick="doSpin()">بچرخان!</button><button class="close" onclick="closeModal()">بستن</button>');
+const SPIN_COL = ['#6d3fd6','#0f9d8f','#e07a2d','#d1357f','#2f6fe0','#1f9d57','#c9961a','#c81e4b'];
+function wheelHTML(){
+  const n = SPIN.length, seg = 360 / n, mx = Math.max(...SPIN);
+  const stops = SPIN.map((_, i) => SPIN_COL[i % SPIN_COL.length] + ' ' + (i * seg) + 'deg ' + ((i + 1) * seg) + 'deg').join(',');
+  let h = '<div class="fw"><div class="aura"></div><div class="glow"></div><div class="rim">';
+  for(let i = 0; i < 18; i++) h += '<i class="bl" style="transform:rotate(' + (i * 20) + 'deg) translateY(-138px)"></i>';
+  h += '</div><div class="disc" style="background:conic-gradient(from ' + (-seg / 2) + 'deg,' + stops + ')"></div>';
+  for(let i = 0; i < n; i++) h += '<div class="sep" style="transform:rotate(' + ((i + .5) * seg) + 'deg)"></div>';
+  SPIN.forEach((v, i) => { h += '<div class="lb' + (v === mx ? ' big' : '') + '" id="lb' + i + '" style="--r:rotate(' + (i * seg) + 'deg);transform:rotate(' + (i * seg) + 'deg)">' + fa(v) + '<small>🪙</small></div>'; });
+  h += '<div class="nd" id="needle"></div><div class="hub"></div>';
+  [[-8,8],[262,10],[-6,250],[264,258],[132,-18]].forEach(([x, y], i) => { h += '<span class="sp" style="left:' + x + 'px;top:' + y + 'px;animation-delay:' + (i * .35) + 's">✨</span>'; });
+  return h + '</div>';
 }
-function doSpin(){
-  if(!spinReady()) return;
-  S.spinDate = today(); save();
+function openSpin(){
+  window._nd = 0;
+  const ready = spinReady();
+  const msg = ready ? 'روزی یک بار شانست را امتحان کن! بیشترین جایزه ' + fa(Math.max(...SPIN)) + ' سکه است.' : 'امروز چرخاندی. فردا دوباره بیا!';
+  const btn = ready ? '<button class="big sbtn" id="spinBtn" onclick="doSpin()">🎡 بچرخان!</button>'
+    : (TEST_MODE ? '<button class="big sbtn" id="spinBtn" onclick="doSpin(true)">🎲 چرخش آزمایشی</button>' : '');
+  openModal('<h2>🎡 چرخ شانس</h2><p id="spinMsg">' + msg + '</p>' + wheelHTML() + btn + '<button class="close" onclick="closeModal()">بستن</button>');
+  $('mbox').classList.add('nosc');
+  const hub = document.querySelector('.fw .hub');
+  if(hub){ hub.style.cursor = 'pointer'; hub.style.pointerEvents = 'auto'; hub.onclick = () => { const b = $('spinBtn'); if(b && b.style.display !== 'none') b.click(); }; }
+}
+const easeOutSpin = t => 1 - Math.pow(1 - t, 2.4);   // شروع سریع ولی قابل دیدن، پایان آرام
+const easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+let spinBusy = false;
+function doSpin(test){
+  if(spinBusy) return;
+  if(!test && !spinReady()) return;
+  if(!test){ S.spinDate = today(); save(); }
+  spinBusy = true;
   $('spinBtn').style.display = 'none';
-  const sp = $('spinner'); sp.classList.add('go'); sfx.tap();
-  const prize = SPIN[Math.floor(Math.random()*SPIN.length)];
-  setTimeout(()=>{
-    sp.classList.remove('go'); sp.style.fontSize = '46px'; sp.textContent = '🪙 ' + fa(prize);
-    addCoins(prize); sfx.win(); confetti();
-  }, 1600);
+  const total = SPIN_W.reduce((a, b) => a + b, 0);
+  let x = Math.random() * total, idx = 0;
+  for(; idx < SPIN_W.length - 1; idx++){ x -= SPIN_W[idx]; if(x < 0) break; }
+  const prize = SPIN[idx], n = SPIN.length, seg = 360 / n;
+  const B = window._nd || 0;
+  const target = B - (B % 360) + 360 * 6 + idx * seg + (Math.random() - .5) * seg * .6;
+  const BACK = -16, OVER = 5, T0 = 600, T1 = 5600, T2 = 600;
+  const needle = $('needle'), mbox = $('mbox');
+  let last = -1, done = false, t0 = null;
+  const setA = a => { needle.style.transform = 'rotate(' + a + 'deg)'; };
+  const track = a => {
+    const i = Math.round((((a % 360) + 360) % 360) / seg) % n;
+    if(i !== last){
+      last = i; sfx.tap(); vib(6);
+      document.querySelectorAll('.fw .lb').forEach((e, j) => e.classList.toggle('cur', j === i));
+    }
+  };
+  function finish(){
+    if(done) return; done = true; spinBusy = false; window._nd = target;
+    setA(target);
+    if(needle.isConnected){
+      document.querySelectorAll('.fw .lb').forEach(e => e.classList.remove('cur'));
+      const l = $('lb' + idx); if(l) l.classList.add('hit');
+      const p = mbox.querySelector('p'); if(p) p.innerHTML = test ? '🎲 آزمایشی: <b>' + fa(prize) + '</b> سکه می‌شد (جایزه داده نشد)' : '🎉 <b>' + fa(prize) + '</b> سکه بردی! 🪙';
+      if(test){ const b = $('spinBtn'); if(b) b.style.display = ''; }
+    }
+    if(!test) addCoins(prize); sfx.win(); if(!test) sfx.coin(); vib([40,60,40]); confetti();
+    if(!test && !needle.isConnected) toast('🎡 ' + fa(prize) + ' سکه از چرخ شانس گرفتی!');
+  }
+  function frame(ts){
+    if(done) return;
+    if(t0 === null) t0 = ts;
+    const t = ts - t0;
+    let a;
+    if(t < T0){ a = B + BACK * easeInOut(t / T0); }                                   // عقب‌کشیدن برای گرفتن نیرو
+    else if(t < T0 + T1){ const u = easeOutSpin((t - T0) / T1); a = B + BACK + (target + OVER - B - BACK) * u; }  // چرخش تند و کند شدن تدریجی
+    else if(t < T0 + T1 + T2){ const u = easeInOut((t - T0 - T1) / T2); a = target + OVER - OVER * u; }    // کمی رد می‌شود و برمی‌گردد
+    else { finish(); return; }
+    setA(a); track(a);
+    requestAnimationFrame(frame);
+  }
+  setTimeout(finish, T0 + T1 + T2 + 800);   // اگر صفحه در پس‌زمینه رفت، جایزه گم نشود
+  requestAnimationFrame(frame);
 }
 
 /* ============ پوسته‌ها ============ */
@@ -654,19 +793,34 @@ function genCore(r, want, minNeed){
   }
   return best;
 }
+/* مرحله‌ی بی‌نهایت: هر شماره‌ی مرحله همیشه همان مرحله‌ی یکسان را می‌سازد؛ ترکیب حرف‌ها عملاً تمام‌نشدنی است */
+const XL = 'ااریتنسمهدبکلوشخگپزرنتمد';
+function targetsOf(letters){ return DICT.filter(w => w.length >= 3 && canForm(w, letters)); }
 function genLevel(n){
   const r = rng(n * 7919 + 13);
   const k = n - LEVELS.length;
   const want = Math.min(7, 5 + Math.floor(k / 25));
-  const core = genCore(r, want, 7);
+  const total = Math.min(8, want + (k >= 100 ? 1 : 0));
+  const pool = BASES.filter(w => w.length >= Math.max(4, want - 2) && w.length <= want);
+  const P = pool.length ? pool : BASES;
+  let best = null;
+  for(let t = 0; t < 40; t++){
+    const letters = Array.from(P[Math.floor(r() * P.length)]);
+    while(letters.length < total) letters.push(XL[Math.floor(r() * XL.length)]);
+    const targets = targetsOf(letters);
+    if(!best || targets.length > best.targets.length) best = {letters, targets};
+    if(targets.length >= (t < 25 ? 9 : 6)) break;
+  }
+  const letters = best.letters, targets = best.targets;
+  for(let i = letters.length - 1; i > 0; i--){ const j = Math.floor(r() * (i + 1)); [letters[i], letters[j]] = [letters[j], letters[i]]; }
   const sh = a => a.map(v => [r(), v]).sort((x, y) => x[0] - y[0]).map(x => x[1]);
-  const long = sh(core.targets.filter(w => w.length >= 4)).sort((a, b) => b.length - a.length);
-  const cap = Math.min(10, 6 + Math.floor(k / 30));
+  const long = sh(targets.filter(w => w.length >= 4)).sort((x, y) => y.length - x.length);
+  const cap = Math.min(12, 6 + Math.floor(k / 30));
   const pick = long.slice(0, cap);
-  const short = sh(core.targets.filter(w => w.length === 3));
+  const short = sh(targets.filter(w => w.length === 3));
   while(pick.length < Math.min(cap, 6) && short.length) pick.push(short.pop());
   while(pick.length < 3 && short.length) pick.push(short.pop());
-  return {l: core.letters.join(''), w: pick};
+  return {l: letters.join(''), w: pick};
 }
 function bonusWord(w){
   if(cur.bonus.has(w)){ flash('قبلاً پیدا شده', 'info'); sfx.bad(); return; }
@@ -738,7 +892,7 @@ function endTimed(){
   const reward = S.tRuns < 3 ? Math.min(5, Math.floor(score / 6)) : 0;
   S.tRuns++;
   if(reward) addCoins(reward); else { save(); refresh(); }
-  if(n) mission('words', n);
+  if(n) mission('words', n); checkAchievements();
   shareTxt = 'در بازی «کلمه‌یاب» با کد چالش ' + fa(code) + ' امتیاز ' + fa(score) + ' گرفتم! می‌توانی بیشتر بگیری؟ کد را در بخش «چالش زمان‌دار» وارد کن.';
   sfx.win(); confetti();
   openModal(`<h2>⏱ زمان تمام شد!</h2><div class="stars">${fa(score)}</div>
