@@ -114,6 +114,8 @@ html,body{position:fixed;inset:0;width:100%;overscroll-behavior:none;touch-actio
 .screen{overflow-x:hidden}
 #mbox.nosc{overflow:hidden}
 .big.sbtn{display:block;width:160px;margin:0 auto;padding:10px 12px;border-radius:16px;font-size:16px;box-shadow:0 4px 0 #0b7f70,0 8px 14px rgba(0,0,0,.3)}
+.buy.locked{opacity:.55;filter:grayscale(.5)}
+.credit{margin-top:auto;padding-top:6px;font-size:12px;opacity:.55;letter-spacing:.2px}
 .big.sbtn:active{transform:translateY(3px);box-shadow:0 1px 0 #0b7f70}
 @media (max-height:700px){.nosc .fw{transform:scale(.82);margin:-14px auto -6px}}
 @media (max-height:600px){.nosc .fw{transform:scale(.68);margin:-34px auto -20px}}
@@ -163,6 +165,7 @@ html,body{position:fixed;inset:0;width:100%;overscroll-behavior:none;touch-actio
     <button class="mid sm alt" onclick="openTutorial(true)">📖 راهنمای بازی</button>
     <button class="mid sm alt" style="grid-column:span 2" onclick="openSettings()">⚙️ تنظیمات</button>
   </div>
+  <div class="credit">سازنده: پارسا رضایی</div>
 </section>
 
 <section id="game" class="screen">
@@ -202,9 +205,6 @@ html,body{position:fixed;inset:0;width:100%;overscroll-behavior:none;touch-actio
 
 <script>
 /* ============ تنظیمات قابل ویرایش ============ */
-// حالت آزمایشی خرید: تا وقتی پرداخت مایکت را وصل نکرده‌اید، true بماند تا بتوانید فروشگاه را تست کنید.
-// قبل از انتشار در مایکت حتماً false کنید و تابع buy() را به سرویس پرداخت مایکت وصل کنید.
-const TEST_MODE = true;
 const HINT_COST = 20, REVEAL_COST = 50;
 const DAILY = [5, 8, 10, 15, 20, 25, 50, 100];   // ۸ روز؛ روز هشتم جایزه‌ی بزرگ
 const SPIN = [8,12,15,20,30,45,70,100];        // گزینه‌های چرخ (بیشترین جایزه ۱۰۰ سکه)
@@ -221,11 +221,12 @@ const THEMES = [
   {id:'o', name:'اقیانوس',    price:120, base:'#0c1a3a', bg:'radial-gradient(circle at 20% 10%,#0369a1 0,transparent 45%),radial-gradient(circle at 85% 90%,#1d4ed8 0,transparent 40%),linear-gradient(160deg,#0c1a3a,#0c4a6e 55%,#172554)'},
   {id:'g', name:'طلایی سلطنتی', price:200, base:'#1c1917', bg:'radial-gradient(circle at 20% 10%,#a16207 0,transparent 45%),radial-gradient(circle at 85% 90%,#78350f 0,transparent 40%),linear-gradient(160deg,#1c1917,#44403c 55%,#292524)'}
 ];
+// شناسه‌ی sku باید دقیقاً با محصولات «مصرفی» که در پنل توسعه‌دهندگان مایکت ساخته‌اید یکی باشد.
 const PACKS = [
-  {id:'p1', name:'پک شروع',      coins:100,  price:'۱۰ هزار تومان'},
-  {id:'p2', name:'پک نقره‌ای',   coins:300,  price:'۲۵ هزار تومان', tag:'محبوب'},
-  {id:'p3', name:'پک طلایی',     coins:800,  price:'۵۵ هزار تومان'},
-  {id:'p4', name:'پک افسانه‌ای', coins:2000, price:'۱۱۰ هزار تومان', tag:'بهترین ارزش'}
+  {id:'p1', sku:'coins_100',  name:'پک شروع',      coins:100,  price:'۱۰ هزار تومان'},
+  {id:'p2', sku:'coins_300',  name:'پک نقره‌ای',   coins:300,  price:'۲۵ هزار تومان', tag:'محبوب'},
+  {id:'p3', sku:'coins_800',  name:'پک طلایی',     coins:800,  price:'۵۵ هزار تومان'},
+  {id:'p4', sku:'coins_2000', name:'پک افسانه‌ای', coins:2000, price:'۱۱۰ هزار تومان', tag:'بهترین ارزش'}
 ];
 const LEVELS = [
  {l:"کارت", w:["کار","کارت","تار","کت","تک"]},
@@ -328,7 +329,7 @@ const sfx = {
 
 /* ============ صفحه‌ها و پنجره‌ها ============ */
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id===id)); }
-function openModal(html){ $('mbox').classList.remove('nosc'); $('mbox').innerHTML = html; $('modal').classList.add('open'); }
+function openModal(html){ $('mbox').classList.remove('nosc'); delete $('mbox').dataset.shop; $('mbox').innerHTML = html; $('modal').classList.add('open'); }
 function closeModal(){ $('modal').classList.remove('open'); }
 /* قفل کامل صفحه: فقط جاهایی که واقعاً محتوای اضافه دارند (فهرست‌ها) به بالا و پایین اسکرول می‌شوند؛ بقیه‌جا هیچ حرکتی ندارد */
 function canScrollY(el){ const cs = getComputedStyle(el); return /(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1; }
@@ -381,23 +382,67 @@ function claimDaily(){
 }
 
 /* ============ فروشگاه ============ */
+/* ============ لایه‌ی پرداخت مایکت ============ */
+/* برنامه‌ی اندروید (WebView) باید شیء window.AndroidBilling را بدهد و نتیجه‌ها را با window.onBilling(json) برگرداند.
+   جزئیات در فایل BILLING_BRIDGE.md */
+const PAID_KEY = KEY + '_paid';          // جدا از پیشرفت بازی نگه داشته می‌شود تا «پاک کردن پیشرفت» رسید خریدها را پاک نکند
+const Billing = {
+  prices: {}, busy: false, timer: null,
+  has(){ return typeof window.AndroidBilling !== 'undefined' && window.AndroidBilling !== null; },
+  call(fn, ...a){ try{ return window.AndroidBilling[fn](...a); }catch(e){ return null; } },
+  paid(){ try{ return JSON.parse(localStorage.getItem(PAID_KEY)) || []; }catch(e){ return []; } },
+  markPaid(t){ const a = this.paid(); a.push(t); try{ localStorage.setItem(PAID_KEY, JSON.stringify(a.slice(-300))); }catch(e){} },
+  init(){ if(!this.has()) return; this.call('init'); },
+  setBusy(b){ this.busy = b; clearTimeout(this.timer); if(b) this.timer = setTimeout(() => { this.busy = false; this.rerender(); }, 90000); this.rerender(); },
+  rerender(){ const m = $('mbox'); if($('modal').classList.contains('open') && m && m.dataset.shop === '1') openShop(); },
+  buy(id){
+    const p = PACKS.find(x => x.id === id); if(!p) return;
+    if(!this.has()){ toast('خرید سکه فقط در برنامه‌ی نصب‌شده از مایکت ممکن است'); return; }
+    if(this.busy) return;
+    this.setBusy(true);
+    this.call('purchase', p.sku, 'u' + Date.now());
+  },
+  grant(sku, token){
+    const p = PACKS.find(x => x.sku === sku);
+    if(p && token && !this.paid().includes(token)){
+      this.markPaid(token); addCoins(p.coins); sfx.coin(); toast('✅ ' + fa(p.coins) + ' سکه به حسابت اضافه شد');
+    }
+    if(token) this.call('consume', token);       // محصول مصرفی: بعد از دادن سکه مصرفش می‌کنیم تا دوباره قابل خرید شود
+  },
+  onEvent(m){
+    if(!m || !m.type) return;
+    if(m.type === 'ready'){ this.call('queryProducts', JSON.stringify(PACKS.map(p => p.sku))); this.call('queryPurchases'); }
+    else if(m.type === 'products'){ (m.items || []).forEach(it => { this.prices[it.sku] = it.price; }); this.rerender(); }
+    else if(m.type === 'owned'){ (m.items || []).forEach(it => this.grant(it.sku, it.token)); }
+    else if(m.type === 'purchased'){ this.grant(m.sku, m.token); this.setBusy(false); }
+    else if(m.type === 'cancelled'){ this.setBusy(false); }
+    else if(m.type === 'error'){ this.setBusy(false); toast('خرید انجام نشد. دوباره تلاش کن'); }
+  }
+};
+window.onBilling = function(x){ try{ Billing.onEvent(typeof x === 'string' ? JSON.parse(x) : x); }catch(e){} };
+function buy(id){ Billing.buy(id); }
+
+/* دکمه‌ی برگشت اندروید: برنامه این تابع را صدا می‌زند؛ اگر false برگرداند، برنامه بسته می‌شود */
+window.handleBack = function(){
+  if($('modal').classList.contains('open')){ closeModal(); return true; }
+  if(!$('home').classList.contains('active')){ goHome(); return true; }
+  return false;
+};
+
+/* ============ فروشگاه ============ */
 function openShop(){
+  const inApp = Billing.has();
   let h = `<h2>🛒 فروشگاه</h2><p>سکه‌هایت: <b>${fa(S.coins)}</b> 🪙</p>`;
   PACKS.forEach(p=>{
+    const label = !inApp ? '🔒 در برنامه' : (Billing.busy ? '⏳' : (Billing.prices[p.sku] || p.price));
     h += `<div class="row"><div><b>${fa(p.coins)} سکه${p.tag?`<span class="tag">${p.tag}</span>`:''}</b><small>${p.name}</small></div>
-      <button class="buy" onclick="buy('${p.id}')">${p.price}</button></div>`;
+      <button class="buy${(!inApp || Billing.busy)?' locked':''}" onclick="buy('${p.id}')">${label}</button></div>`;
   });
-  if(TEST_MODE) h += `<p style="font-size:12px;opacity:.6">حالت آزمایشی: خرید واقعی انجام نمی‌شود.</p>`;
+  h += `<p style="font-size:13px;opacity:.85;margin-top:10px">سکه‌ی رایگان هم می‌توانی بگیری 👇</p>
+    <div class="grid2" style="margin:8px 0"><button class="mid sm" onclick="openDaily(true)">🎁 جایزه روزانه</button><button class="mid sm" onclick="openSpin()">🎡 چرخ شانس</button><button class="mid sm" style="grid-column:span 2" onclick="openMissions()">🎯 ماموریت‌ها</button></div>`;
   h += `<button class="close" onclick="closeModal()">بستن</button>`;
   openModal(h);
-}
-function buy(id){
-  const p = PACKS.find(x=>x.id===id); if(!p) return;
-  if(TEST_MODE){
-    addCoins(p.coins); sfx.coin(); toast('✅ (آزمایشی) ' + fa(p.coins) + ' سکه اضافه شد'); openShop(); return;
-  }
-  // اینجا باید به سرویس پرداخت مایکت وصل شود. بعد از تأیید پرداخت: addCoins(p.coins)
-  toast('پرداخت هنوز به مایکت وصل نشده است');
+  $('mbox').dataset.shop = '1';
 }
 
 /* ============ تنظیمات ============ */
@@ -407,10 +452,16 @@ function openSettings(){
    <div class="row"><b>لرزش</b><div class="switch ${S.vib?'on':''}" onclick="tog('vib')"></div></div>
    <div class="row"><div><b>آمار</b><small>${fa(S.totalWords)} کلمه پیدا کرده‌ای</small></div></div>
    <button class="mid" style="background:#ff5d8f;box-shadow:0 5px 0 #a42e55;color:#fff;margin-top:8px" onclick="resetAll()">پاک کردن پیشرفت</button>
+   <p style="font-size:12px;opacity:.55;margin-top:10px">سازنده: پارسا رضایی</p>
    <button class="close" onclick="closeModal()">بستن</button>`);
 }
 function tog(k){ S[k] = !S[k]; save(); openSettings(); }
-function resetAll(){ if(confirm('همه‌ی پیشرفت و سکه‌ها پاک شود؟')){ S = JSON.parse(JSON.stringify(DEF)); save(); closeModal(); applyTheme(); refresh(); } }
+function resetAll(){
+  openModal(`<h2>⚠️ پاک کردن پیشرفت</h2><p>همه‌ی پیشرفت و سکه‌ها پاک می‌شود و برگشتی ندارد. مطمئنی؟</p>
+    <button class="mid" style="background:#ff5d8f;box-shadow:0 5px 0 #a42e55;color:#fff" onclick="doReset()">بله، پاک شود</button>
+    <button class="close" onclick="openSettings()">نه، برگرد</button>`);
+}
+function doReset(){ S = JSON.parse(JSON.stringify(DEF)); save(); closeModal(); applyTheme(); refresh(); }
 
 /* ============ افتخارات و آمار ============ */
 const ACHIEVEMENTS = [
@@ -695,7 +746,7 @@ function openSpin(){
   const ready = spinReady();
   const msg = ready ? 'روزی یک بار شانست را امتحان کن! بیشترین جایزه ' + fa(Math.max(...SPIN)) + ' سکه است.' : 'امروز چرخاندی. فردا دوباره بیا!';
   const btn = ready ? '<button class="big sbtn" id="spinBtn" onclick="doSpin()">🎡 بچرخان!</button>'
-    : (TEST_MODE ? '<button class="big sbtn" id="spinBtn" onclick="doSpin(true)">🎲 چرخش آزمایشی</button>' : '');
+    : '';
   openModal('<h2>🎡 چرخ شانس</h2><p id="spinMsg">' + msg + '</p>' + wheelHTML() + btn + '<button class="close" onclick="closeModal()">بستن</button>');
   $('mbox').classList.add('nosc');
   const hub = document.querySelector('.fw .hub');
@@ -704,10 +755,10 @@ function openSpin(){
 const easeOutSpin = t => 1 - Math.pow(1 - t, 2.4);   // شروع سریع ولی قابل دیدن، پایان آرام
 const easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 let spinBusy = false;
-function doSpin(test){
+function doSpin(){
   if(spinBusy) return;
-  if(!test && !spinReady()) return;
-  if(!test){ S.spinDate = today(); save(); }
+  if(!spinReady()) return;
+  S.spinDate = today(); save();
   spinBusy = true;
   $('spinBtn').style.display = 'none';
   const total = SPIN_W.reduce((a, b) => a + b, 0);
@@ -733,11 +784,10 @@ function doSpin(test){
     if(needle.isConnected){
       document.querySelectorAll('.fw .lb').forEach(e => e.classList.remove('cur'));
       const l = $('lb' + idx); if(l) l.classList.add('hit');
-      const p = mbox.querySelector('p'); if(p) p.innerHTML = test ? '🎲 آزمایشی: <b>' + fa(prize) + '</b> سکه می‌شد (جایزه داده نشد)' : '🎉 <b>' + fa(prize) + '</b> سکه بردی! 🪙';
-      if(test){ const b = $('spinBtn'); if(b) b.style.display = ''; }
+      const p = mbox.querySelector('p'); if(p) p.innerHTML = '🎉 <b>' + fa(prize) + '</b> سکه بردی! 🪙';
     }
-    if(!test) addCoins(prize); sfx.win(); if(!test) sfx.coin(); vib([40,60,40]); confetti();
-    if(!test && !needle.isConnected) toast('🎡 ' + fa(prize) + ' سکه از چرخ شانس گرفتی!');
+    addCoins(prize); sfx.win(); sfx.coin(); vib([40,60,40]); confetti();
+    if(!needle.isConnected) toast('🎡 ' + fa(prize) + ' سکه از چرخ شانس گرفتی!');
   }
   function frame(ts){
     if(done) return;
@@ -931,6 +981,7 @@ function endTut(){ S.tut = true; save(); closeModal(); if(dailyReady()) setTimeo
 /* ============ شروع ============ */
 applyTheme();
 refresh();
+Billing.init();
 if(!S.tut) setTimeout(openTutorial, 300);
 else if(dailyReady()) setTimeout(() => openDaily(false), 500);
 </script>
