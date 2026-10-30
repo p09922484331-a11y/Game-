@@ -110,6 +110,8 @@ button{font-family:inherit;color:inherit;border:0;cursor:pointer}
 /* قفل صفحه و دکمه‌ی کوچک چرخ */
 html,body{position:fixed;inset:0;width:100%;overscroll-behavior:none;touch-action:manipulation}
 #mbox{overflow-x:hidden;overscroll-behavior:contain}
+.words,.mapgrid,#home{overflow-x:hidden;overscroll-behavior:contain}
+.screen{overflow-x:hidden}
 #mbox.nosc{overflow:hidden}
 .big.sbtn{display:block;width:160px;margin:0 auto;padding:10px 12px;border-radius:16px;font-size:16px;box-shadow:0 4px 0 #0b7f70,0 8px 14px rgba(0,0,0,.3)}
 .big.sbtn:active{transform:translateY(3px);box-shadow:0 1px 0 #0b7f70}
@@ -125,9 +127,10 @@ html,body{position:fixed;inset:0;width:100%;overscroll-behavior:none;touch-actio
 .row b{font-size:16px}.row small{opacity:.75;display:block;font-size:12px}
 .buy{background:linear-gradient(180deg,#43f0cf,#12b8a0);color:#073b34;font-weight:800;border-radius:12px;padding:9px 14px;white-space:nowrap}
 .tag{background:var(--pink);font-size:11px;padding:2px 8px;border-radius:999px;margin-right:6px}
-.days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:12px 0}
-.day{border-radius:10px;background:rgba(255,255,255,.12);padding:8px 0;font-size:11px}
-.day b{display:block;font-size:14px;color:var(--gold)}
+.days{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.day{border-radius:12px;background:rgba(255,255,255,.12);padding:10px 0;font-size:12px}
+.day b{display:block;font-size:17px;color:var(--gold);margin:2px 0}
+.day.jp{border:2px solid var(--gold);background:linear-gradient(160deg,rgba(255,209,102,.35),rgba(255,93,143,.25))}
 .day.now{background:var(--gold);color:#5a3a00}.day.now b{color:#5a3a00}
 .day.past{opacity:.45}
 .close{margin-top:10px;background:transparent;color:#fff;opacity:.75;padding:8px;font-size:14px}
@@ -157,6 +160,7 @@ html,body{position:fixed;inset:0;width:100%;overscroll-behavior:none;touch-actio
     <button class="mid sm alt" onclick="openShop()">🛒 فروشگاه سکه</button>
     <button class="mid sm alt" onclick="openThemes()">🎨 پوسته‌ها</button>
     <button class="mid sm alt" onclick="openAchievements()">🏆 افتخارات و آمار</button>
+    <button class="mid sm alt" onclick="openTutorial(true)">📖 راهنمای بازی</button>
     <button class="mid sm alt" style="grid-column:span 2" onclick="openSettings()">⚙️ تنظیمات</button>
   </div>
 </section>
@@ -202,7 +206,7 @@ html,body{position:fixed;inset:0;width:100%;overscroll-behavior:none;touch-actio
 // قبل از انتشار در مایکت حتماً false کنید و تابع buy() را به سرویس پرداخت مایکت وصل کنید.
 const TEST_MODE = true;
 const HINT_COST = 20, REVEAL_COST = 50;
-const DAILY = [5, 8, 10, 15, 20, 25, 50];
+const DAILY = [5, 8, 10, 15, 20, 25, 50, 100];   // ۸ روز؛ روز هشتم جایزه‌ی بزرگ
 const SPIN = [8,12,15,20,30,45,70,100];        // گزینه‌های چرخ (بیشترین جایزه ۱۰۰ سکه)
 const SPIN_W = [24,22,18,14,10,7,4,1];       // شانس هر گزینه؛ میانگین جایزه حدود ۲۰ سکه
 const MISSIONS = [
@@ -326,8 +330,14 @@ const sfx = {
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id===id)); }
 function openModal(html){ $('mbox').classList.remove('nosc'); $('mbox').innerHTML = html; $('modal').classList.add('open'); }
 function closeModal(){ $('modal').classList.remove('open'); }
-$('mbox').addEventListener('touchmove', e => { if($('mbox').classList.contains('nosc')) e.preventDefault(); }, {passive:false});
-$('modal').addEventListener('touchmove', e => { if(e.target.id === 'modal') e.preventDefault(); }, {passive:false});
+/* قفل کامل صفحه: فقط جاهایی که واقعاً محتوای اضافه دارند (فهرست‌ها) به بالا و پایین اسکرول می‌شوند؛ بقیه‌جا هیچ حرکتی ندارد */
+function canScrollY(el){ const cs = getComputedStyle(el); return /(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1; }
+document.addEventListener('touchmove', e => {
+  if(e.touches.length > 1){ e.preventDefault(); return; }
+  for(let el = e.target; el && el.nodeType === 1 && el !== document.body; el = el.parentElement){ if(canScrollY(el)) return; }
+  e.preventDefault();
+}, {passive:false});
+document.addEventListener('gesturestart', e => e.preventDefault());
 $('modal').addEventListener('pointerdown', e=>{ if(e.target.id==='modal') closeModal(); });
 
 function refresh(){
@@ -349,15 +359,15 @@ function today(){ return new Date().toDateString(); }
 function dailyReady(){ return S.lastDaily !== today(); }
 function nextStreak(){
   const y = new Date(); y.setDate(y.getDate()-1);
-  return S.lastDaily === y.toDateString() ? (S.streak % 7) + 1 : 1;
+  return S.lastDaily === y.toDateString() ? (S.streak % DAILY.length) + 1 : 1;
 }
 function openDaily(manual){
   const ready = dailyReady();
   if(!ready && !manual) return;
   const st = ready ? nextStreak() : S.streak;
   let days = '';
-  for(let i=1;i<=7;i++){
-    days += `<div class="day ${i===st?'now':(i<st?'past':'')}">روز ${fa(i)}<b>${fa(DAILY[i-1])}</b>🪙</div>`;
+  for(let i=1;i<=DAILY.length;i++){
+    days += `<div class="day ${i===st?'now':(i<st?'past':'')}${i===DAILY.length?' jp':''}">روز ${fa(i)}<b>${fa(DAILY[i-1])}</b>${i===DAILY.length?'💎':'🪙'}</div>`;
   }
   openModal(`<h2>🎁 جایزه روزانه</h2><p>هر روز بیای جایزه‌ات بزرگ‌تر می‌شود!</p><div class="days">${days}</div>`+
     (ready ? `<button class="big" style="width:100%" onclick="claimDaily()">دریافت ${fa(DAILY[st-1])} سکه</button>`
@@ -908,13 +918,13 @@ function shareRes(){
 }
 
 /* ============ آموزش ============ */
-function openTutorial(){
-  openModal(`<h2>👋 خوش آمدی!</h2>
+function openTutorial(manual){
+  openModal(`<h2>${manual ? '📖 راهنمای بازی' : '👋 خوش آمدی!'}</h2>
     <div class="row"><b>۱</b><div style="flex:1">انگشتت را روی حرف‌ها بکش تا کلمه بسازی</div></div>
     <div class="row"><b>۲</b><div style="flex:1">کلمه‌ی درست در جدول بالا می‌نشیند و سکه می‌گیری</div></div>
     <div class="row"><b>۳</b><div style="flex:1">کلمه‌ی معنی‌دار بیرون از جدول هم «کلمه‌ی جایزه» است</div></div>
     <div class="row"><b>۴</b><div style="flex:1">گیر کردی؟ از 💡 راهنما استفاده کن</div></div>
-    <button class="big" style="width:100%;margin-top:8px" onclick="endTut()">بزن بریم!</button>`);
+    <button class="big" style="width:100%;margin-top:8px" onclick="${manual ? 'closeModal()' : 'endTut()'}">${manual ? 'باشه' : 'بزن بریم!'}</button>`);
 }
 function endTut(){ S.tut = true; save(); closeModal(); if(dailyReady()) setTimeout(() => openDaily(false), 300); }
 
